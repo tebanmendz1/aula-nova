@@ -52,6 +52,8 @@ export default function HomePage() {
     return () => cards.forEach(card => { card.onclick = null; });
   }, [filtered]);
 
+  useEffect(() => { const bell=document.querySelector<HTMLButtonElement>(".icon-btn"); if(!bell)return; bell.onclick=()=>{window.location.href="/notificaciones"}; return()=>{bell.onclick=null}; }, []);
+
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     window.location.href = "/login";
@@ -69,7 +71,7 @@ export default function HomePage() {
         <div className="role-switch role-label">Vista de {role.toLowerCase()}</div>
         <nav>
           <p>ESPACIO DE TRABAJO</p>
-          {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => label === "Mis aulas" ? (window.location.href = "/aulas") : setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
+          {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => label === "Mis aulas" ? (window.location.href = "/aulas") : label === "Calendario" ? (window.location.href = "/calendario") : setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
           <p>GESTIÓN</p>
           <button><Library size={19}/><span>Recursos</span></button>
           <button onClick={() => role === "Administrador" && (window.location.href = "/admin/usuarios")}><Users size={19}/><span>{role === "Administrador" ? "Usuarios" : "Estudiantes"}</span></button>
