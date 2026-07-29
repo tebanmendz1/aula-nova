@@ -1,43 +1,68 @@
 # AulaNova
 
-Primera base funcional de una aula virtual autohospedada para administradores, docentes y alumnos.
+Plataforma de aula virtual autohospedada para administradores, docentes y alumnos. Incluye autenticación, aulas, matrículas por código, módulos, lecciones, archivos privados en MinIO, actividades, entregas, calificaciones, cuestionarios, foros, calendario, anuncios, progreso y notificaciones.
 
-## Desarrollo local
+## Desarrollo y validación
 
 ```bash
 npm install
 npx prisma generate
 npm run dev
+npm test
+npm run build
 ```
 
-La aplicación se abre en `http://localhost:3000`.
+## EasyPanel
 
-## Variables de entorno
+- Aplicación: repositorio GitHub, Dockerfile, puerto interno `3000` y protocolo de destino **HTTP**.
+- PostgreSQL: use el host interno que muestra EasyPanel y el puerto 5432.
+- MinIO/S3: use el host interno y puerto real del servicio; cree el bucket privado `aula-recursos`.
+- Dominio: HTTPS público activado; destino HTTP, puerto 3000, path `/`.
+- Health check: método GET, path `/api/health`, puerto 3000.
 
-Copia `.env.example` a `.env` y reemplaza todas las credenciales. Nunca publiques el archivo `.env`.
+El contenedor ejecuta `prisma migrate deploy` antes de iniciar Next.js. El despliegue correcto termina con `Ready` y `/api/health` responde HTTP 200.
 
-## Despliegue en EasyPanel
+## Variables de producción
 
-1. Crea un proyecto llamado `aula-nova`.
-2. Añade un servicio PostgreSQL llamado `aula-db` y crea la base `aula_virtual`.
-3. Añade MinIO como servicio de almacenamiento y crea el bucket privado `aula-recursos`.
-4. Crea un servicio App desde este repositorio. EasyPanel detectará el `Dockerfile`.
-5. Configura el puerto de proxy `3000` y asigna el dominio de la plataforma.
-6. Añade las variables indicadas en `.env.example` usando los nombres internos de los servicios.
-7. Configura la comprobación de salud en `/api/health`.
-8. Antes del primer lanzamiento, ejecuta `npx prisma migrate deploy` con acceso a la base de datos.
-9. Activa copias de seguridad externas tanto para PostgreSQL como para el almacenamiento de archivos.
+```dotenv
+NODE_ENV=production
+PORT=3000
+NEXT_PUBLIC_APP_NAME=AulaNova
+APP_URL=https://TU-DOMINIO
+DATABASE_URL=postgresql://USUARIO:CONTRASEÑA@HOST_POSTGRES:5432/BASE?sslmode=disable
+AUTH_SECRET=SECRETO_ALEATORIO_DE_64_BYTES
+INITIAL_ADMIN_EMAIL=admin@tudominio.com
+REQUIRE_EMAIL_VERIFICATION=true
+SMTP_HOST=smtp.proveedor.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=usuario
+SMTP_PASSWORD=contraseña
+MAIL_FROM=AulaNova <no-reply@tudominio.com>
+S3_ENDPOINT=http://HOST_MINIO:9000
+S3_REGION=us-east-1
+S3_BUCKET=aula-recursos
+S3_ACCESS_KEY=usuario-minio
+S3_SECRET_KEY=contraseña-minio
+```
 
-## Estado de esta iteración
+Nunca guarde secretos en Git. Sin SMTP, las cuentas se verifican automáticamente. Para exigir verificación configure SMTP y `REQUIRE_EMAIL_VERIFICATION=true`.
 
-- Panel principal adaptable a escritorio y móvil.
-- Vistas contextuales de administrador, docente y alumno.
-- Registro público de alumnos e inicio de sesión seguro.
-- Sesiones firmadas mediante cookies HTTP-only y cierre de sesión.
-- Búsqueda de aulas.
-- Agenda, estadísticas, progreso y próximas actividades.
-- Flujo inicial para crear aulas, registrar usuarios o matricularse.
-- Modelo relacional completo en Prisma.
-- Imagen Docker optimizada para EasyPanel.
+## Primer acceso
 
-La creación de aulas, persistencia de formularios académicos y carga real de archivos forman parte de la siguiente iteración.
+1. Defina `INITIAL_ADMIN_EMAIL` antes del primer registro.
+2. Registre exactamente ese correo en `/registro`; será el administrador inicial.
+3. Desde **Usuarios**, asigne el rol docente y active o suspenda cuentas.
+4. Los docentes crean aulas y comparten el código; los alumnos se matriculan desde **Mis aulas**.
+
+## Operación y respaldo
+
+- Programe copias externas diarias de PostgreSQL y MinIO.
+- Conserve al menos siete respaldos y pruebe restauraciones periódicamente.
+- Antes de actualizar: respaldo, despliegue, prueba de health, login y descarga de archivo.
+- Para revertir, redespliegue el commit anterior; no revierta la base sin respaldo.
+- Revise logs de autenticación, SMTP y S3.
+
+## Seguridad
+
+Cookies HTTP-only, JWT firmado, bcrypt, tokens hasheados con vencimiento, Zod, acceso por aula, archivos privados, límites de intentos y cabeceras CSP/anti-frame. `npm audit` actualmente señala dependencias internas de Next 15 y propone degradar a Next 9.3.3; no aplique esa corrección automática. Evalúe la siguiente actualización estable compatible del framework.

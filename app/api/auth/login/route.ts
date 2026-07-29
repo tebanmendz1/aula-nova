@@ -3,6 +3,7 @@ import { compare } from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
+import { clientIp,rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -10,6 +11,7 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rate=rateLimit(`login:${clientIp(request)}`,10,15*60_000);if(!rate.allowed)return NextResponse.json({error:"Demasiados intentos. Inténtalo más tarde."},{status:429,headers:{"Retry-After":String(rate.retryAfter)}});
   try {
     const parsed = schema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "Correo o contraseña incorrectos." }, { status: 400 });

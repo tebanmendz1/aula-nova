@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { appUrl, mailEnabled, sendMail } from "@/lib/mail";
 import { newToken } from "@/lib/tokens";
+import { clientIp,rateLimit } from "@/lib/rate-limit";
 
 const schema = z.object({
   name: z.string().trim().min(3).max(80),
@@ -13,6 +14,7 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rate=rateLimit(`register:${clientIp(request)}`,5,60*60_000);if(!rate.allowed)return NextResponse.json({error:"Demasiados registros desde esta conexión."},{status:429});
   try {
     const parsed = schema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "Revisa los datos ingresados." }, { status: 400 });

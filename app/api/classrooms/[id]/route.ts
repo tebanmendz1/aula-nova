@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       teacher: { select: { id: true, name: true, email: true } },
       enrollments: { where: { status: "ACTIVE" }, select: { id: true, progress: true, student: { select: { id: true, name: true, email: true } } } },
       announcements: { orderBy: { publishedAt: "desc" } },
-      modules: { orderBy: { position: "asc" }, include: { lessons: { orderBy: { position: "asc" }, include: { resources: true, activities: { include: { submissions: user?.role === "STUDENT" ? { where: { studentId: user.sub }, include: { student: { select: { name: true } } } } : { include: { student: { select: { name: true } } } } } } } } } },
+      modules: { orderBy: { position: "asc" }, include: { lessons: { orderBy: { position: "asc" }, include: { resources: true, progress: user?.role === "STUDENT" ? { where: { studentId: user.sub }, select: { completedAt: true } } : false, activities: { include: { submissions: user?.role === "STUDENT" ? { where: { studentId: user.sub }, include: { student: { select: { name: true } } } } : { include: { student: { select: { name: true } } } } } } } } } },
     },
   });
   return NextResponse.json({ classroom, role: user?.role, userId: user?.sub });

@@ -3,8 +3,10 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { appUrl, sendMail } from "@/lib/mail";
 import { newToken } from "@/lib/tokens";
+import { clientIp,rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request:Request){
+  const rate=rateLimit(`recover:${clientIp(request)}`,5,60*60_000);if(!rate.allowed)return NextResponse.json({ok:true});
   const parsed=z.object({email:z.string().trim().toLowerCase().email()}).safeParse(await request.json());
   if(!parsed.success)return NextResponse.json({ok:true});
   const user=await prisma.user.findUnique({where:{email:parsed.data.email},select:{id:true,name:true,email:true}});
