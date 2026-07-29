@@ -56,7 +56,7 @@ export default function HomePage() {
           {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
           <p>GESTIÓN</p>
           <button><Library size={19}/><span>Recursos</span></button>
-          <button><Users size={19}/><span>{role === "Administrador" ? "Usuarios" : "Estudiantes"}</span></button>
+          <button onClick={() => role === "Administrador" && (window.location.href = "/admin/usuarios")}><Users size={19}/><span>{role === "Administrador" ? "Usuarios" : "Estudiantes"}</span></button>
           <button><TrendingUp size={19}/><span>Calificaciones</span></button>
         </nav>
         <div className="sidebar-bottom">
