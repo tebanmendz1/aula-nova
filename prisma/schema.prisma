@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum ClassroomStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum ResourceType {
+  DOCUMENT
+  VIDEO
+  LINK
+  AUDIO
+  PRESENTATION
+}
+
+enum ActivityType {
+  ASSIGNMENT
+  QUIZ
+  FORUM
+  PROJECT
+}
+
+model User {
+  id String @id @default(cuid())
+  name String
+  email String @unique
+  passwordHash String
+  role Role @default(STUDENT)
+  avatarUrl String?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  classrooms Classroom[] @relation("TeacherClassrooms")
+  enrollments Enrollment[]
+  submissions Submission[]
+}
+
+model Classroom {
+  id String @id @default(cuid())
+  title String
+  description String?
+  color String @default("#6d5dfc")
+  coverUrl String?
+  inviteCode String @unique
+  status ClassroomStatus @default(DRAFT)
+  teacherId String
+  teacher User @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  modules Module[]
+  enrollments Enrollment[]
+  announcements Announcement[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Enrollment {
+  id String @id @default(cuid())
+  classroomId String
+  studentId String
+  status EnrollmentStatus @default(ACTIVE)
+  progress Int @default(0)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+  @@unique([classroomId, studentId])
+}
+
+model Module {
+  id String @id @default(cuid())
+  title String
+  position Int
+  published Boolean @default(false)
+  classroomId String
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+  @@unique([classroomId, position])
+}
+
+model Lesson {
+  id String @id @default(cuid())
+  title String
+  content Json?
+  position Int
+  published Boolean @default(false)
+  moduleId String
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resources Resource[]
+  activities Activity[]
+  @@unique([moduleId, position])
+}
+
+model Resource {
+  id String @id @default(cuid())
+  title String
+  type ResourceType
+  url String
+  size Int?
+  lessonId String
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id String @id @default(cuid())
+  title String
+  description String?
+  type ActivityType
+  dueAt DateTime?
+  maxScore Float @default(100)
+  lessonId String
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  createdAt DateTime @default(now())
+}
+
+model Submission {
+  id String @id @default(cuid())
+  content String?
+  fileUrl String?
+  score Float?
+  feedback String?
+  submittedAt DateTime @default(now())
+  gradedAt DateTime?
+  activityId String
+  studentId String
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  @@unique([activityId, studentId])
+}
+
+model Announcement {
+  id String @id @default(cuid())
+  title String
+  body String
+  classroomId String
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  publishedAt DateTime @default(now())
+}
