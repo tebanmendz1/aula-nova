@@ -41,6 +41,12 @@ enum ActivityType {
   PROJECT
 }
 
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  REOPENED
+}
+
 model User {
   id String @id @default(cuid())
   name String
@@ -156,6 +162,8 @@ model Submission {
   feedback String?
   submittedAt DateTime @default(now())
   gradedAt DateTime?
+  status SubmissionStatus @default(DRAFT)
+  updatedAt DateTime @updatedAt
   activityId String
   studentId String
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
