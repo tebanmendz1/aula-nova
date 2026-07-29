@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose/jwt/verify";
 
-const publicRoutes = ["/login", "/registro"];
+const publicRoutes = ["/login", "/registro", "/recuperar"];
 
 async function validSession(token?: string) {
   if (!token || !process.env.AUTH_SECRET) return false;
@@ -15,7 +15,7 @@ async function validSession(token?: string) {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const isPublic = publicRoutes.includes(path);
+  const isPublic = publicRoutes.includes(path) || path.startsWith("/restablecer/");
   const authenticated = await validSession(request.cookies.get("aulanova_session")?.value);
 
   if (!authenticated && !isPublic) return NextResponse.redirect(new URL("/login", request.url));
@@ -24,5 +24,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/registro", "/admin/:path*", "/aulas/:path*"],
+  matcher: ["/", "/login", "/registro", "/recuperar", "/restablecer/:path*", "/admin/:path*", "/aulas/:path*"],
 };

@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     if (!user || !user.active || !(await compare(parsed.data.password, user.passwordHash))) {
       return NextResponse.json({ error: "Correo o contraseña incorrectos." }, { status: 401 });
     }
+    if(process.env.REQUIRE_EMAIL_VERIFICATION==="true"&&!user.emailVerifiedAt)return NextResponse.json({error:"Verifica tu correo antes de iniciar sesión."},{status:403});
 
     const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role };
     const response = NextResponse.json({ user: safeUser });

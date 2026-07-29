@@ -3,6 +3,8 @@ import { hash } from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
+import { appUrl, mailEnabled, sendMail } from "@/lib/mail";
+import { newToken } from "@/lib/tokens";
 
 const schema = z.object({
   name: z.string().trim().min(3).max(80),
@@ -19,15 +21,21 @@ export async function POST(request: Request) {
     if (exists) return NextResponse.json({ error: "Ya existe una cuenta con este correo." }, { status: 409 });
 
     const initialAdmin = process.env.INITIAL_ADMIN_EMAIL?.trim().toLowerCase();
+    const verification = newToken();
     const user = await prisma.user.create({
       data: {
         name: parsed.data.name,
         email: parsed.data.email,
         passwordHash: await hash(parsed.data.password, 12),
         role: parsed.data.email === initialAdmin ? "ADMIN" : "STUDENT",
+        emailVerifiedAt: mailEnabled() ? null : new Date(),
+        emailVerificationToken: mailEnabled() ? verification.hash : null,
+        emailVerificationExpires: mailEnabled() ? new Date(Date.now()+24*60*60*1000) : null,
       },
       select: { id: true, name: true, email: true, role: true },
     });
+
+    if(mailEnabled()) await sendMail(user.email,"Verifica tu cuenta de AulaNova",`<h2>Hola, ${user.name}</h2><p>Confirma tu dirección de correo para activar todas las funciones.</p><p><a href="${appUrl()}/api/auth/verify?token=${verification.raw}">Verificar mi cuenta</a></p>`);
 
     const response = NextResponse.json({ user }, { status: 201 });
     response.cookies.set(SESSION_COOKIE, await createSessionToken(user), sessionCookieOptions);
