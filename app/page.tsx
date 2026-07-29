@@ -53,7 +53,7 @@ export default function HomePage() {
         <div className="role-switch role-label">Vista de {role.toLowerCase()}</div>
         <nav>
           <p>ESPACIO DE TRABAJO</p>
-          {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
+          {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => label === "Mis aulas" ? (window.location.href = "/aulas") : setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
           <p>GESTIÓN</p>
           <button><Library size={19}/><span>Recursos</span></button>
           <button onClick={() => role === "Administrador" && (window.location.href = "/admin/usuarios")}><Users size={19}/><span>{role === "Administrador" ? "Usuarios" : "Estudiantes"}</span></button>
@@ -69,7 +69,7 @@ export default function HomePage() {
       <section className="content">
         <header>
           <label className="search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar aulas, recursos o estudiantes…"/><kbd>⌘ K</kbd></label>
-          <div className="header-actions"><button className="icon-btn" aria-label="Notificaciones"><Bell size={20}/><i /></button><button className="primary" onClick={() => setShowCreate(true)}><Plus size={18}/>{role === "Docente" ? "Crear aula" : role === "Administrador" ? "Nuevo usuario" : "Unirme a un aula"}</button></div>
+          <div className="header-actions"><button className="icon-btn" aria-label="Notificaciones"><Bell size={20}/><i /></button><button className="primary" onClick={() => role === "Administrador" ? (window.location.href = "/admin/usuarios") : (window.location.href = role === "Docente" ? "/aulas?action=create" : "/aulas")}><Plus size={18}/>{role === "Docente" ? "Crear aula" : role === "Administrador" ? "Nuevo usuario" : "Unirme a un aula"}</button></div>
         </header>
 
         <div className="body">
