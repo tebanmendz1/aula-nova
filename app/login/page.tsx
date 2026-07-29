@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Eye, EyeOff, GraduationCap, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import "../auth.css";
+import { readApiResponse } from "@/lib/client-api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,8 +17,8 @@ export default function LoginPage() {
     event.preventDefault(); setLoading(true); setError("");
     const data = new FormData(event.currentTarget);
     const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: data.get("email"), password: data.get("password") }) });
-    const result = await response.json();
-    if (!response.ok) { setError(result.error); setLoading(false); return; }
+    const result = await readApiResponse(response);
+    if (!response.ok) { setError(String(result.error||"No se pudo iniciar sesión.")); setLoading(false); return; }
     router.push("/"); router.refresh();
   }
 

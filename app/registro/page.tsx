@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Eye, EyeOff, GraduationCap, LoaderCircle, LockKeyhole, Mail, UserRound } from "lucide-react";
 import "../auth.css";
+import { readApiResponse } from "@/lib/client-api";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,8 +18,8 @@ export default function RegisterPage() {
     const data = new FormData(event.currentTarget);
     if (data.get("password") !== data.get("confirm")) { setError("Las contraseñas no coinciden."); setLoading(false); return; }
     const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: data.get("name"), email: data.get("email"), password: data.get("password") }) });
-    const result = await response.json();
-    if (!response.ok) { setError(result.error); setLoading(false); return; }
+    const result = await readApiResponse(response);
+    if (!response.ok) { setError(String(result.error||"No se pudo crear la cuenta.")); setLoading(false); return; }
     router.push("/"); router.refresh();
   }
 
