@@ -32,10 +32,12 @@ Copia `.env.example` a `.env` y reemplaza todas las credenciales. Nunca publique
 
 - Panel principal adaptable a escritorio y móvil.
 - Vistas contextuales de administrador, docente y alumno.
+- Registro público de alumnos e inicio de sesión seguro.
+- Sesiones firmadas mediante cookies HTTP-only y cierre de sesión.
 - Búsqueda de aulas.
 - Agenda, estadísticas, progreso y próximas actividades.
 - Flujo inicial para crear aulas, registrar usuarios o matricularse.
 - Modelo relacional completo en Prisma.
 - Imagen Docker optimizada para EasyPanel.
 
-La autenticación, persistencia de formularios y carga real de archivos forman parte de la siguiente iteración.
+La creación de aulas, persistencia de formularios académicos y carga real de archivos forman parte de la siguiente iteración.

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bell, BookOpen, CalendarDays, ChevronRight, CircleHelp, Clock3, FileText,
   GraduationCap, Home, Library, MessageSquare, MoreHorizontal, Plus, Search,
-  Settings, Sparkles, TrendingUp, Users, Video, X
+  Settings, Sparkles, TrendingUp, Users, Video, X, LogOut
 } from "lucide-react";
 
 type Role = "Docente" | "Alumno" | "Administrador";
@@ -22,23 +22,35 @@ const nav = [
 
 export default function HomePage() {
   const [role, setRole] = useState<Role>("Docente");
+  const [displayName, setDisplayName] = useState("Usuario");
   const [active, setActive] = useState("Inicio");
   const [showCreate, setShowCreate] = useState(false);
   const [query, setQuery] = useState("");
   const filtered = useMemo(() => courses.filter(c => c.title.toLowerCase().includes(query.toLowerCase())), [query]);
+
+  useEffect(() => {
+    fetch("/api/auth/me").then(response => response.json()).then(({ user }) => {
+      if (!user) return;
+      setDisplayName(user.name);
+      setRole(user.role === "ADMIN" ? "Administrador" : user.role === "TEACHER" ? "Docente" : "Alumno");
+    });
+  }, []);
+
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/login";
+  }
 
   return (
     <main className="shell">
       <aside className="sidebar">
         <div className="brand"><span className="brand-mark"><GraduationCap size={23}/></span><span>Aula<span>Nova</span></span></div>
         <div className="profile">
-          <div className="avatar">JS<span /></div>
-          <div><strong>Julia Salazar</strong><small>{role}</small></div>
+          <div className="avatar">{displayName.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase()}<span /></div>
+          <div><strong>{displayName}</strong><small>{role}</small></div>
           <button aria-label="Más opciones"><MoreHorizontal size={18}/></button>
         </div>
-        <select aria-label="Cambiar vista de rol" className="role-switch" value={role} onChange={e => setRole(e.target.value as Role)}>
-          <option>Docente</option><option>Alumno</option><option>Administrador</option>
-        </select>
+        <div className="role-switch role-label">Vista de {role.toLowerCase()}</div>
         <nav>
           <p>ESPACIO DE TRABAJO</p>
           {nav.map(({label, icon: Icon, badge}) => <button key={label} className={active === label ? "active" : ""} onClick={() => setActive(label)}><Icon size={19}/><span>{label}</span>{badge && <b>{badge}</b>}</button>)}
@@ -50,6 +62,7 @@ export default function HomePage() {
         <div className="sidebar-bottom">
           <button><CircleHelp size={19}/>Ayuda y soporte</button>
           <button><Settings size={19}/>Configuración</button>
+          <button onClick={logout}><LogOut size={19}/>Cerrar sesión</button>
         </div>
       </aside>
 
@@ -61,7 +74,7 @@ export default function HomePage() {
 
         <div className="body">
           <section className="welcome">
-            <div><span className="eyebrow"><Sparkles size={14}/> MIÉRCOLES, 29 DE JULIO</span><h1>Buenos días, Julia <span>👋</span></h1><p>{role === "Docente" ? "Tienes 3 aulas activas y 8 entregas esperando tu revisión." : role === "Alumno" ? "Tienes dos actividades por completar esta semana." : "La comunidad cuenta con 186 usuarios activos."}</p></div>
+            <div><span className="eyebrow"><Sparkles size={14}/> MIÉRCOLES, 29 DE JULIO</span><h1>Buenos días, {displayName.split(" ")[0]} <span>👋</span></h1><p>{role === "Docente" ? "Tienes 3 aulas activas y 8 entregas esperando tu revisión." : role === "Alumno" ? "Tienes dos actividades por completar esta semana." : "La comunidad cuenta con 186 usuarios activos."}</p></div>
             <div className="week"><b>Semana 7</b><small>del periodo actual</small><span><i style={{width:"68%"}} /></span><em>68% completado</em></div>
           </section>
 
