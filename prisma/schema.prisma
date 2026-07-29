@@ -58,6 +58,11 @@ model User {
   classrooms Classroom[] @relation("TeacherClassrooms")
   enrollments Enrollment[]
   submissions Submission[]
+  quizAttempts QuizAttempt[]
+  forumPosts ForumPost[]
+  lessonProgress LessonProgress[]
+  notifications Notification[]
+  calendarEvents CalendarEvent[] @relation("EventCreator")
 }
 
 model Classroom {
@@ -73,6 +78,7 @@ model Classroom {
   modules Module[]
   enrollments Enrollment[]
   announcements Announcement[]
+  calendarEvents CalendarEvent[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -110,6 +116,7 @@ model Lesson {
   module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   resources Resource[]
   activities Activity[]
+  progress LessonProgress[]
   @@unique([moduleId, position])
 }
 
@@ -134,6 +141,9 @@ model Activity {
   lessonId String
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   submissions Submission[]
+  quizQuestions QuizQuestion[]
+  quizAttempts QuizAttempt[]
+  forumPosts ForumPost[]
   createdAt DateTime @default(now())
 }
 
@@ -159,4 +169,73 @@ model Announcement {
   classroomId String
   classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   publishedAt DateTime @default(now())
+}
+
+model QuizQuestion {
+  id String @id @default(cuid())
+  prompt String
+  options Json
+  correctAnswer String
+  points Float @default(1)
+  position Int
+  activityId String
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  @@unique([activityId, position])
+}
+
+model QuizAttempt {
+  id String @id @default(cuid())
+  answers Json
+  score Float
+  submittedAt DateTime @default(now())
+  activityId String
+  studentId String
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  @@unique([activityId, studentId])
+}
+
+model ForumPost {
+  id String @id @default(cuid())
+  body String
+  createdAt DateTime @default(now())
+  activityId String
+  authorId String
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model LessonProgress {
+  id String @id @default(cuid())
+  completedAt DateTime @default(now())
+  lessonId String
+  studentId String
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  @@unique([lessonId, studentId])
+}
+
+model CalendarEvent {
+  id String @id @default(cuid())
+  title String
+  description String?
+  startsAt DateTime
+  endsAt DateTime?
+  kind String @default("CLASS")
+  classroomId String
+  createdById String
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  createdBy User @relation("EventCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id String @id @default(cuid())
+  title String
+  body String
+  href String?
+  readAt DateTime?
+  createdAt DateTime @default(now())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

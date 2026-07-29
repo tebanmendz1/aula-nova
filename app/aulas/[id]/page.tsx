@@ -16,6 +16,7 @@ export default function ClassroomDetail({params}:{params:Promise<{id:string}>}) 
   const {id}=use(params); const [classroom,setClassroom]=useState<Classroom|null>(null); const [role,setRole]=useState("STUDENT"); const [tab,setTab]=useState("content"); const [loading,setLoading]=useState(true); const [action,setAction]=useState<Action|null>(null); const [target,setTarget]=useState(""); const [saving,setSaving]=useState(false); const [error,setError]=useState("");
   async function load(){const r=await fetch(`/api/classrooms/${id}`,{cache:"no-store"});const d=await r.json();if(r.ok){setClassroom(d.classroom);setRole(d.role)}setLoading(false)} useEffect(()=>{load()},[id]);
   const lessons=useMemo(()=>classroom?.modules.flatMap(m=>m.lessons)??[],[classroom]); const activities=useMemo(()=>lessons.flatMap(l=>l.activities),[lessons]); const canEdit=role==="ADMIN"||role==="TEACHER";
+  useEffect(()=>{const nav=document.querySelector(".detail-tabs");if(!nav||nav.querySelector(".interaction-link"))return;const link=document.createElement("a");link.className="interaction-link";link.href=`/aulas/${id}/interaccion`;link.textContent="Cuestionarios y foros";nav.appendChild(link);return()=>link.remove()},[id]);
   async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault();setSaving(true);setError("");const f=new FormData(e.currentTarget);const payload:any={action};
     f.forEach((value,key)=>{if(typeof value==="string")payload[key]=value});
