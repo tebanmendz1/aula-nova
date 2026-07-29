@@ -8,8 +8,9 @@ import {
 } from "lucide-react";
 
 type Role = "Docente" | "Alumno" | "Administrador";
+type CourseCard = { id?: string; title: string; code: string; students: number; progress: number; color: string; icon: string; next: string; time: string };
 
-const courses = [
+const courses: CourseCard[] = [
   { title: "Diseño de Interfaces", code: "DIS-204", students: 28, progress: 72, color: "violet", icon: "✦", next: "Crítica de prototipos", time: "Hoy, 15:30" },
   { title: "Fundamentos de UX", code: "UX-101", students: 34, progress: 48, color: "orange", icon: "◎", next: "Mapa de empatía", time: "Mañana, 10:00" },
   { title: "Prototipado Digital", code: "PRO-310", students: 21, progress: 86, color: "blue", icon: "⌁", next: "Entrega proyecto final", time: "Viernes, 23:59" },
@@ -23,10 +24,11 @@ const nav = [
 export default function HomePage() {
   const [role, setRole] = useState<Role>("Docente");
   const [displayName, setDisplayName] = useState("Usuario");
+  const [courseData, setCourseData] = useState<CourseCard[]>(courses);
   const [active, setActive] = useState("Inicio");
   const [showCreate, setShowCreate] = useState(false);
   const [query, setQuery] = useState("");
-  const filtered = useMemo(() => courses.filter(c => c.title.toLowerCase().includes(query.toLowerCase())), [query]);
+  const filtered = useMemo(() => courseData.filter(c => c.title.toLowerCase().includes(query.toLowerCase())), [query, courseData]);
 
   useEffect(() => {
     fetch("/api/auth/me").then(response => response.json()).then(({ user }) => {
@@ -35,6 +37,20 @@ export default function HomePage() {
       setRole(user.role === "ADMIN" ? "Administrador" : user.role === "TEACHER" ? "Docente" : "Alumno");
     });
   }, []);
+
+  useEffect(() => {
+    fetch("/api/classrooms").then(response => response.json()).then(({ classrooms }) => {
+      if (!classrooms?.length) return;
+      const palette = ["violet", "orange", "blue"];
+      setCourseData(classrooms.slice(0, 6).map((classroom: { id:string; title:string; inviteCode:string; status:string; _count:{enrollments:number;modules:number} }, index:number) => ({ id:classroom.id, title:classroom.title, code:classroom.inviteCode, students:classroom._count.enrollments, progress:classroom.status === "ACTIVE" ? 65 : 15, color:palette[index%palette.length], icon:index%3===0?"✦":index%3===1?"◎":"⌁", next:`${classroom._count.modules} módulos disponibles`, time:classroom.status === "ACTIVE" ? "Aula publicada" : "En preparación" })));
+    });
+  }, []);
+
+  useEffect(() => {
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".course-card"));
+    cards.forEach((card, index) => { card.onclick = (event) => { if ((event.target as HTMLElement).closest("button")) return; const id = filtered[index]?.id; if (id) window.location.href = `/aulas/${id}`; }; });
+    return () => cards.forEach(card => { card.onclick = null; });
+  }, [filtered]);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
