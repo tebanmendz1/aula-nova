@@ -2,7 +2,7 @@
 
 Plataforma de aula virtual autohospedada para administradores, docentes y alumnos. Incluye autenticación, aulas, matrículas por código, módulos, lecciones, archivos privados en MinIO, actividades, entregas, calificaciones, cuestionarios, foros, simulaciones interactivas embebidas, calendario, anuncios, progreso y notificaciones.
 
-Las simulaciones se añaden como recurso de tipo **Simulación interactiva** usando una URL embebible HTTPS de H5P, GeoGebra, PhET u otra herramienta compatible. Se ejecutan en una ventana aislada dentro del aula. Algunos proveedores bloquean su contenido en iframe; en ese caso debe usarse su enlace/embed oficial.
+Las simulaciones se añaden como recurso de tipo **Simulación interactiva** usando una URL embebible o cargando un paquete SCORM `.zip`/`.rar` que contenga `imsmanifest.xml` en su raíz. AulaNova valida el manifiesto, extrae el paquete en MinIO y lo ejecuta en una ventana aislada dentro del aula. El límite es 50 MB comprimidos y 150 MB extraídos.
 
 ## Desarrollo y validación
 

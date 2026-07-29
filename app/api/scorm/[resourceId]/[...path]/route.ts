@@ -1,0 +1,9 @@
+import {NextRequest,NextResponse} from "next/server";
+import {GetObjectCommand} from "@aws-sdk/client-s3";
+import {getRequestUser} from "@/lib/api-auth";
+import {prisma} from "@/lib/prisma";
+import {scormMime} from "@/lib/scorm";
+import {storageBucket,storageClient} from "@/lib/storage";
+
+export const runtime="nodejs";
+export async function GET(request:NextRequest,{params}:{params:Promise<{resourceId:string;path:string[]}>}){const user=await getRequestUser(request);if(!user)return NextResponse.json({error:"No autorizado"},{status:401});const{resourceId,path}=await params;const resource=await prisma.resource.findFirst({where:{id:resourceId,type:"INTERACTIVE",lesson:{module:{classroom:{OR:[...(user.role==="ADMIN"?[{}]:[]),{teacherId:user.sub},{enrollments:{some:{studentId:user.sub,status:"ACTIVE"}}}]}}}},select:{id:true,lesson:{select:{module:{select:{classroomId:true}}}}}});if(!resource)return NextResponse.json({error:"Sin acceso"},{status:403});const clean=path.join("/");if(clean.split("/").includes(".."))return NextResponse.json({error:"Ruta inválida"},{status:400});try{const object=await storageClient().send(new GetObjectCommand({Bucket:storageBucket(),Key:`scorm/${resource.lesson.module.classroomId}/${resource.id}/${clean}`}));if(!object.Body)return new NextResponse(null,{status:404});return new NextResponse(object.Body.transformToWebStream() as ReadableStream,{headers:{"Content-Type":object.ContentType||scormMime(clean),"Cache-Control":"private, max-age=3600","X-Frame-Options":"SAMEORIGIN","Content-Security-Policy":"default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src 'self' 'unsafe-inline' data:; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'self'"}})}catch{return new NextResponse(null,{status:404})}}
