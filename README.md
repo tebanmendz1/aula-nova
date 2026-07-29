@@ -20,7 +20,7 @@ npm run build
 - PostgreSQL: use el host interno que muestra EasyPanel y el puerto 5432.
 - MinIO/S3: use el host interno y puerto real del servicio; cree el bucket privado `aula-recursos`.
 - Dominio: HTTPS público activado; destino HTTP, puerto 3000, path `/`.
-- Health check: método GET, path `/api/health`, puerto 3000.
+- Health check: método GET, path `/api/health`, puerto 3000, intervalo 10 segundos, timeout 4 segundos, periodo inicial 45 segundos y 6 reintentos. La imagen también incluye este health check, por lo que EasyPanel debe mantener el contenedor anterior hasta que el nuevo esté saludable.
 
 El contenedor ejecuta `prisma migrate deploy` antes de iniciar Next.js. El despliegue correcto termina con `Ready` y `/api/health` responde HTTP 200.
 
