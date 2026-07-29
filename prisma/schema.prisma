@@ -31,6 +31,7 @@ enum ResourceType {
   LINK
   AUDIO
   PRESENTATION
+  INTERACTIVE
 }
 
 enum ActivityType {

@@ -1,6 +1,8 @@
 # AulaNova
 
-Plataforma de aula virtual autohospedada para administradores, docentes y alumnos. Incluye autenticación, aulas, matrículas por código, módulos, lecciones, archivos privados en MinIO, actividades, entregas, calificaciones, cuestionarios, foros, calendario, anuncios, progreso y notificaciones.
+Plataforma de aula virtual autohospedada para administradores, docentes y alumnos. Incluye autenticación, aulas, matrículas por código, módulos, lecciones, archivos privados en MinIO, actividades, entregas, calificaciones, cuestionarios, foros, simulaciones interactivas embebidas, calendario, anuncios, progreso y notificaciones.
+
+Las simulaciones se añaden como recurso de tipo **Simulación interactiva** usando una URL embebible HTTPS de H5P, GeoGebra, PhET u otra herramienta compatible. Se ejecutan en una ventana aislada dentro del aula. Algunos proveedores bloquean su contenido en iframe; en ese caso debe usarse su enlace/embed oficial.
 
 ## Desarrollo y validación
 
