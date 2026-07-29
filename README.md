@@ -48,9 +48,11 @@ S3_REGION=us-east-1
 S3_BUCKET=aula-recursos
 S3_ACCESS_KEY=usuario-minio
 S3_SECRET_KEY=contraseña-minio
+OPENAI_API_KEY=sk-proj-tu-clave
+OPENAI_MODEL=gpt-5.6
 ```
 
-Nunca guarde secretos en Git. Sin SMTP, las cuentas se verifican automáticamente. Para exigir verificación configure SMTP y `REQUIRE_EMAIL_VERIFICATION=true`.
+Nunca guarde secretos en Git. `OPENAI_API_KEY` es opcional: sin ella funciona el editor manual, pero no el asistente para generar divisiones, temas, subtemas y actividades. Las propuestas de IA siempre requieren revisión y confirmación del docente. Sin SMTP, las cuentas se verifican automáticamente. Para exigir verificación configure SMTP y `REQUIRE_EMAIL_VERIFICATION=true`.
 
 ## Primer acceso
 

@@ -6,3 +6,12 @@
 @media(max-width:1100px){.course-grid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.activity-panel{display:none}}
 @media(max-width:760px){.sidebar{width:72px;padding:22px 12px}.brand>span:last-child,.profile>div:not(.avatar),.profile>button,.role-switch,.sidebar nav p,.sidebar nav button span,.sidebar nav button b,.sidebar-bottom button{display:none}.brand{margin:0 auto 27px}.profile{padding:8px;background:transparent}.sidebar nav button{justify-content:center;padding:12px}.content{margin-left:72px;width:calc(100% - 72px)}header{padding:0 18px}.primary{font-size:0!important}.primary svg{margin:0}.search kbd{display:none}.body{padding:25px 18px}.week{display:none}.stats{grid-template-columns:1fr 1fr}.course-grid{grid-template-columns:1fr}.welcome h1{font-size:24px}}
 @media(max-width:480px){.stats{grid-template-columns:1fr}.stats article{padding:13px}.course-grid{grid-template-columns:1fr}.welcome p{line-height:1.5}.body{padding-inline:14px}header{padding-inline:14px}}
+
+/* Escala de lectura accesible para toda la aplicacion. */
+body{font-size:16px;line-height:1.5}
+:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) :is(p,small,label,button,input,textarea,select,a,dt,dd,em){font-size:clamp(12px,.82vw,15px);line-height:1.45}
+:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) :is(input,textarea,select){min-height:40px}
+:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) button{min-height:38px}
+.sidebar{width:270px}.content{margin-left:270px;width:calc(100% - 270px)}
+.profile strong,.sidebar nav button{font-size:14px}.course-info h3{font-size:16px}.stats small,.next small,.date-row>div small,.live-card small{font-size:11px}
+@media(max-width:760px){.sidebar{width:78px}.content{margin-left:78px;width:calc(100% - 78px)}}
