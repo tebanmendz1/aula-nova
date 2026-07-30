@@ -5,4 +5,4 @@ La persona responsable se compromete a pagar al docente la cuota y en las fechas
 
 IMPORTANTE — DINERO NO REEMBOLSABLE: los pagos realizados no son reembolsables una vez iniciado el periodo o prestado el servicio correspondiente, salvo los casos exigidos por la ley o cuando exista incumplimiento atribuible al prestador.
 
-La firma manuscrita electrónica y las imágenes del documento de identidad se recopilan como evidencia de aceptación. Este mecanismo no equivale por sí solo a una firma digital certificada. La información será utilizada únicamente para gestionar la relación educativa y acreditar el consentimiento.`;
+La firma manuscrita electrónica se recopila como evidencia de aceptación. Este mecanismo no equivale por sí solo a una firma digital certificada. La información será utilizada únicamente para gestionar la relación educativa y acreditar el consentimiento.`;
