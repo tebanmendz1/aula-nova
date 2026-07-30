@@ -56,6 +56,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const type = body.elementType in resourceAliases ? resourceAliases[body.elementType as keyof typeof resourceAliases] : body.elementType;
         await prisma.resource.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, type, url, size: body.size ? Number(body.size) : null } });
       } else throw new Error("Elemento inválido");
+    } else if (body.action === "update_structure") {
+      const title=titleSchema.parse(body.title),description=z.string().trim().max(5000).parse(body.description||""),elementId=String(body.elementId),kind=String(body.kind);
+      if(kind==="module"){const item=await prisma.module.findFirst({where:{id:elementId,classroomId:id}});if(!item)throw new Error("Unidad inválida");await prisma.module.update({where:{id:elementId},data:{title}})}
+      else if(kind==="lesson"){const item=await prisma.lesson.findFirst({where:{id:elementId,module:{classroomId:id}}});if(!item)throw new Error("Tema inválido");await prisma.lesson.update({where:{id:elementId},data:{title,content:{text:description}}})}
+      else if(kind==="topic"){const item=await prisma.topic.findFirst({where:{id:elementId,lesson:{module:{classroomId:id}}}});if(!item)throw new Error("Subtema inválido");await prisma.topic.update({where:{id:elementId},data:{title,description}})}
+      else throw new Error("Estructura inválida");
     } else if (body.action === "move_element") {
       const target = await resolveTarget(id, body.lessonId && String(body.lessonId), body.topicId && String(body.topicId));
       const elementId = String(body.elementId), kind = String(body.kind);

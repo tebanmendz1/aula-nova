@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getRequestUser } from "@/lib/api-auth";
+import { newInviteCode } from "@/lib/invite-code";
 
 const schema = z.object({
   title: z.string().trim().min(3).max(100),
@@ -10,12 +11,8 @@ const schema = z.object({
   status: z.enum(["DRAFT", "ACTIVE"]).default("DRAFT"),
 });
 
-function inviteCode() {
-  return crypto.randomUUID().replaceAll("-", "").slice(0, 8).toUpperCase();
-}
-
 const classroomSelect = {
-  id: true, title: true, description: true, color: true, inviteCode: true, status: true, createdAt: true, updatedAt: true,
+  id: true, title: true, description: true, color: true, inviteCode: true, invitationMode: true, status: true, createdAt: true, updatedAt: true,
   teacher: { select: { id: true, name: true, email: true } },
   _count: { select: { enrollments: true, modules: true } },
 } as const;
@@ -34,7 +31,7 @@ export async function POST(request: NextRequest) {
   const parsed = schema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Revisa los datos del aula." }, { status: 400 });
   try {
-    const classroom = await prisma.classroom.create({ data: { ...parsed.data, teacherId: user.sub, inviteCode: inviteCode() }, select: classroomSelect });
+    const classroom = await prisma.classroom.create({ data: { ...parsed.data, teacherId: user.sub, inviteCode: newInviteCode() }, select: classroomSelect });
     return NextResponse.json({ classroom }, { status: 201 });
   } catch (error) {
     console.error("create_classroom_error", error);

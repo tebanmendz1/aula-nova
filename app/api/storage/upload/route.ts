@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getRequestUser } from "@/lib/api-auth";
 import { storageBucket,storageClient } from "@/lib/storage";
 
-const allowed=new Set(["application/pdf","image/png","image/jpeg","image/webp","video/mp4","audio/mpeg","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.presentationml.presentation"]);
+const allowed=new Set(["application/pdf","text/plain","text/csv","image/png","image/jpeg","image/webp","image/gif","video/mp4","audio/mpeg","audio/wav","application/msword","application/vnd.ms-excel","application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.oasis.opendocument.text","application/vnd.oasis.opendocument.spreadsheet","application/vnd.oasis.opendocument.presentation"]);
 
 export async function POST(request:NextRequest){
   const user=await getRequestUser(request);if(!user)return NextResponse.json({error:"No autorizado"},{status:401});
