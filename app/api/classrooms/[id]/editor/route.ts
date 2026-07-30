@@ -69,7 +69,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const topic = await prisma.topic.findFirst({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
         if (!topic) throw new Error("Elemento inválido");
         const position = await prisma.topic.count({ where: { lessonId: target.lessonId } }) + 1;
-        await prisma.topic.update({ where: { id: elementId }, data: { lessonId: target.lessonId, position } });
+        await prisma.$transaction([
+          prisma.topic.update({ where: { id: elementId }, data: { lessonId: target.lessonId, position } }),
+          prisma.resource.updateMany({ where: { topicId: elementId }, data: { lessonId: target.lessonId } }),
+          prisma.activity.updateMany({ where: { topicId: elementId }, data: { lessonId: target.lessonId } }),
+        ]);
       } else if (kind === "resource") {
         const item = await prisma.resource.findFirst({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
         if (!item) throw new Error("Elemento inválido");
