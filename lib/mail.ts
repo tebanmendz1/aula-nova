@@ -12,3 +12,10 @@ export async function sendMail(to:string,subject:string,html:string){
 }
 
 export function appUrl(){return (process.env.APP_URL||"http://localhost:3000").replace(/\/$/,"")}
+
+export function publicAppUrl(request:Request){
+  if(process.env.APP_URL)return process.env.APP_URL.replace(/\/$/,"");
+  const host=request.headers.get("x-forwarded-host")?.split(",")[0]?.trim()||request.headers.get("host");
+  const protocol=request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim()||"https";
+  return host?`${protocol}://${host}`.replace(/\/$/,""):new URL(request.url).origin;
+}
