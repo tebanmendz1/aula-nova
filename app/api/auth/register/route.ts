@@ -11,7 +11,8 @@ const schema = z.object({
   name: z.string().trim().min(3).max(80),
   email: z.string().trim().toLowerCase().email().max(160),
   password: z.string().min(8).max(72),
-});
+  accountType:z.enum(["ADULT","MINOR"]).default("ADULT"),birthDate:z.string().optional(),guardianName:z.string().trim().max(100).optional(),guardianEmail:z.string().trim().toLowerCase().email().optional().or(z.literal("")),guardianPhone:z.string().trim().max(40).optional(),guardianRelationship:z.string().trim().max(60).optional(),
+}).superRefine((data,ctx)=>{if(data.accountType==="MINOR"){for(const field of ["guardianName","guardianEmail","guardianPhone","guardianRelationship"] as const)if(!data[field])ctx.addIssue({code:"custom",path:[field],message:"Dato requerido para una cuenta de menor"})}});
 
 export async function POST(request: Request) {
   const rate=rateLimit(`register:${clientIp(request)}`,5,60*60_000);if(!rate.allowed)return NextResponse.json({error:"Demasiados registros desde esta conexión."},{status:429});
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
         email: parsed.data.email,
         passwordHash: await hash(parsed.data.password, 12),
         role: parsed.data.email === initialAdmin ? "ADMIN" : "STUDENT",
+        accountType:parsed.data.accountType,birthDate:parsed.data.birthDate?new Date(parsed.data.birthDate):null,guardianName:parsed.data.accountType==="MINOR"?parsed.data.guardianName:null,guardianEmail:parsed.data.accountType==="MINOR"?parsed.data.guardianEmail:null,guardianPhone:parsed.data.accountType==="MINOR"?parsed.data.guardianPhone:null,guardianRelationship:parsed.data.accountType==="MINOR"?parsed.data.guardianRelationship:null,
         emailVerifiedAt: mailEnabled() ? null : new Date(),
         emailVerificationToken: mailEnabled() ? verification.hash : null,
         emailVerificationExpires: mailEnabled() ? new Date(Date.now()+24*60*60*1000) : null,

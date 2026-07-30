@@ -1,0 +1,11 @@
+CREATE TYPE "AccountType" AS ENUM ('ADULT','MINOR');
+ALTER TABLE "User" ADD COLUMN "accountType" "AccountType" NOT NULL DEFAULT 'ADULT', ADD COLUMN "birthDate" TIMESTAMP(3), ADD COLUMN "guardianName" TEXT, ADD COLUMN "guardianEmail" TEXT, ADD COLUMN "guardianPhone" TEXT, ADD COLUMN "guardianRelationship" TEXT;
+ALTER TABLE "Enrollment" ADD COLUMN "requestedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, ADD COLUMN "reviewedAt" TIMESTAMP(3), ADD COLUMN "reviewNote" TEXT;
+CREATE TABLE "ContractTemplate" ("id" TEXT NOT NULL,"title" TEXT NOT NULL DEFAULT 'Compromiso de participación y pago',"content" TEXT NOT NULL,"version" INTEGER NOT NULL DEFAULT 1,"classroomId" TEXT NOT NULL,"updatedAt" TIMESTAMP(3) NOT NULL,CONSTRAINT "ContractTemplate_pkey" PRIMARY KEY ("id"));
+CREATE TABLE "ContractAcceptance" ("id" TEXT NOT NULL,"tokenHash" TEXT NOT NULL,"contractTitle" TEXT NOT NULL,"contractSnapshot" TEXT NOT NULL,"signerName" TEXT,"signerEmail" TEXT NOT NULL,"signatureKey" TEXT,"idFrontKey" TEXT,"idBackKey" TEXT,"ipAddress" TEXT,"userAgent" TEXT,"signedAt" TIMESTAMP(3),"expiresAt" TIMESTAMP(3) NOT NULL,"enrollmentId" TEXT NOT NULL,"studentId" TEXT NOT NULL,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT "ContractAcceptance_pkey" PRIMARY KEY ("id"));
+CREATE UNIQUE INDEX "ContractTemplate_classroomId_key" ON "ContractTemplate"("classroomId");
+CREATE UNIQUE INDEX "ContractAcceptance_tokenHash_key" ON "ContractAcceptance"("tokenHash");
+CREATE UNIQUE INDEX "ContractAcceptance_enrollmentId_key" ON "ContractAcceptance"("enrollmentId");
+ALTER TABLE "ContractTemplate" ADD CONSTRAINT "ContractTemplate_classroomId_fkey" FOREIGN KEY ("classroomId") REFERENCES "Classroom"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ContractAcceptance" ADD CONSTRAINT "ContractAcceptance_enrollmentId_fkey" FOREIGN KEY ("enrollmentId") REFERENCES "Enrollment"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ContractAcceptance" ADD CONSTRAINT "ContractAcceptance_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

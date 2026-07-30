@@ -20,7 +20,8 @@ const classroomSelect = {
 export async function GET(request: NextRequest) {
   const user = await getRequestUser(request);
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  const where = user.role === "ADMIN" ? {} : user.role === "TEACHER" ? { teacherId: user.sub } : { enrollments: { some: { studentId: user.sub, status: "ACTIVE" as const } } };
+  if(user.role==="STUDENT"){const classrooms=await prisma.classroom.findMany({where:{status:"ACTIVE"},select:{...classroomSelect,enrollments:{where:{studentId:user.sub},select:{status:true}}},orderBy:{updatedAt:"desc"}});return NextResponse.json({classrooms:classrooms.map(({enrollments,...classroom})=>({...classroom,enrollmentStatus:enrollments[0]?.status||null}))})}
+  const where = user.role === "ADMIN" ? {} : { teacherId: user.sub };
   const classrooms = await prisma.classroom.findMany({ where, select: classroomSelect, orderBy: { updatedAt: "desc" } });
   return NextResponse.json({ classrooms });
 }

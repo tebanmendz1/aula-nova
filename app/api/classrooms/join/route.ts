@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
         const claimed = await tx.classroom.updateMany({ where: { id: classroom.id, inviteCode: code }, data: { inviteCode: newInviteCode() } });
         if (claimed.count !== 1) throw new Error("CODE_USED");
       }
-      await tx.enrollment.upsert({ where: { classroomId_studentId: { classroomId: classroom.id, studentId: user.sub } }, create: { classroomId: classroom.id, studentId: user.sub }, update: { status: "ACTIVE" } });
+      await tx.enrollment.upsert({ where: { classroomId_studentId: { classroomId: classroom.id, studentId: user.sub } }, create: { classroomId: classroom.id, studentId: user.sub, status:"PENDING" }, update: { status: "PENDING", requestedAt:new Date(), reviewedAt:null, reviewNote:null } });
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, message:"Solicitud enviada. El docente debe aprobarla y emitir el contrato." });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
     if (message === "CODE_USED") return NextResponse.json({ error: "Este código ya fue utilizado. Solicita uno nuevo al docente." }, { status: 409 });

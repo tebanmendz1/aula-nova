@@ -1,0 +1,1 @@
+.enrollment-action{width:100%;margin-top:14px;border:0;border-radius:9px;padding:11px;background:#6754d9;color:#fff;font-weight:800;font-size:11px}.enrollment-action.pending{background:#eeeaf5;color:#716b7c}.enrollment-action.suspended{background:#fff0e7;color:#a44f20;border:1px solid #f3cdb8}.enrollment-action:disabled{cursor:not-allowed;opacity:.8}
