@@ -135,6 +135,8 @@ model Topic {
   position Int
   lessonId String
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  resources Resource[]
+  activities Activity[]
   createdAt DateTime @default(now())
   @@unique([lessonId, position])
 }
@@ -147,7 +149,10 @@ model Resource {
   size Int?
   lessonId String
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  topicId String?
+  topic Topic? @relation(fields: [topicId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
+  @@index([topicId])
 }
 
 model Activity {
@@ -159,11 +164,14 @@ model Activity {
   maxScore Float @default(100)
   lessonId String
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  topicId String?
+  topic Topic? @relation(fields: [topicId], references: [id], onDelete: SetNull)
   submissions Submission[]
   quizQuestions QuizQuestion[]
   quizAttempts QuizAttempt[]
   forumPosts ForumPost[]
   createdAt DateTime @default(now())
+  @@index([topicId])
 }
 
 model Submission {

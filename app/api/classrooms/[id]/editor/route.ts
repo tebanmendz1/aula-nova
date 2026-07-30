@@ -3,91 +3,84 @@ import { z } from "zod";
 import { getRequestUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
-const ActivitySchema = z.object({
-  title: z.string().trim().min(3).max(160),
-  description: z.string().trim().max(3000),
-  type: z.enum(["ASSIGNMENT", "QUIZ", "FORUM", "PROJECT"]),
-});
+const titleSchema = z.string().trim().min(3).max(160);
+const activityTypes = ["ASSIGNMENT", "QUIZ", "FORUM", "PROJECT"] as const;
+const resourceTypes = ["DOCUMENT", "VIDEO", "LINK", "AUDIO", "PRESENTATION", "INTERACTIVE"] as const;
 
-const PlanSchema = z.object({
-  title: z.string().trim().min(3).max(160),
-  summary: z.string().trim().max(3000),
-  divisions: z.array(z.object({
-    title: z.string().trim().min(3).max(160),
-    themes: z.array(z.object({
-      title: z.string().trim().min(3).max(160),
-      description: z.string().trim().max(5000),
-      topics: z.array(z.object({
-        title: z.string().trim().min(3).max(160),
-        description: z.string().trim().max(3000),
-      })).max(15),
-      activity: ActivitySchema.nullable(),
-    })).max(12),
-  })).min(1).max(12),
-});
+async function owns(id: string, user: { sub: string; role: string }) {
+  return prisma.classroom.findFirst({ where: { id, ...(user.role === "TEACHER" ? { teacherId: user.sub } : user.role === "ADMIN" ? {} : { id: "__none__" }) }, select: { id: true } });
+}
 
-async function owner(id: string, user: { sub: string; role: string }) {
-  return prisma.classroom.findFirst({
-    where: { id, ...(user.role === "TEACHER" ? { teacherId: user.sub } : user.role === "ADMIN" ? {} : { id: "__none__" }) },
-    select: { id: true },
-  });
+async function resolveTarget(classroomId: string, lessonId?: string, topicId?: string) {
+  if (topicId) {
+    const topic = await prisma.topic.findFirst({ where: { id: topicId, lesson: { module: { classroomId } } }, select: { id: true, lessonId: true } });
+    if (!topic) throw new Error("Subtema inválido");
+    return { lessonId: topic.lessonId, topicId: topic.id };
+  }
+  const lesson = await prisma.lesson.findFirst({ where: { id: lessonId, module: { classroomId } }, select: { id: true } });
+  if (!lesson) throw new Error("Tema inválido");
+  return { lessonId: lesson.id, topicId: null };
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getRequestUser(request);
-  const { id } = await params;
-  if (!user || !await owner(id, user)) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
-  const classroom = await prisma.classroom.findUnique({
-    where: { id },
-    include: { modules: { orderBy: { position: "asc" }, include: { lessons: { orderBy: { position: "asc" }, include: { topics: { orderBy: { position: "asc" } }, resources: true, activities: true } } } } },
-  });
+  const user = await getRequestUser(request), { id } = await params;
+  if (!user || !await owns(id, user)) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+  const classroom = await prisma.classroom.findUnique({ where: { id }, include: { modules: { orderBy: { position: "asc" }, include: { lessons: { orderBy: { position: "asc" }, include: { topics: { orderBy: { position: "asc" }, include: { resources: true, activities: true } }, resources: { where: { topicId: null } }, activities: { where: { topicId: null } } } } } } } });
   return NextResponse.json({ classroom });
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const user = await getRequestUser(request);
-  const { id } = await params;
-  if (!user || !await owner(id, user)) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
+  const user = await getRequestUser(request), { id } = await params;
+  if (!user || !await owns(id, user)) return NextResponse.json({ error: "Sin permiso" }, { status: 403 });
   const body = await request.json();
-
   try {
     if (body.action === "division") {
-      const title = z.string().trim().min(3).max(160).parse(body.title);
       const position = await prisma.module.count({ where: { classroomId: id } }) + 1;
-      await prisma.module.create({ data: { classroomId: id, title, position, published: true } });
+      await prisma.module.create({ data: { classroomId: id, title: titleSchema.parse(body.title), position, published: true } });
     } else if (body.action === "theme") {
-      const title = z.string().trim().min(3).max(160).parse(body.title);
-      const description = z.string().trim().max(5000).parse(body.description || "");
       const module = await prisma.module.findFirst({ where: { id: String(body.parentId), classroomId: id } });
-      if (!module) throw new Error("Módulo inválido");
+      if (!module) throw new Error("Unidad inválida");
       const position = await prisma.lesson.count({ where: { moduleId: module.id } }) + 1;
-      await prisma.lesson.create({ data: { moduleId: module.id, title, content: { text: description }, position, published: true } });
-    } else if (body.action === "topic") {
-      const title = z.string().trim().min(3).max(160).parse(body.title);
-      const description = z.string().trim().max(3000).parse(body.description || "");
-      const lesson = await prisma.lesson.findFirst({ where: { id: String(body.parentId), module: { classroomId: id } } });
-      if (!lesson) throw new Error("Tema inválido");
-      const position = await prisma.topic.count({ where: { lessonId: lesson.id } }) + 1;
-      await prisma.topic.create({ data: { lessonId: lesson.id, title, description, position } });
-    } else if (body.action === "import_plan") {
-      const plan = PlanSchema.parse(body.plan);
-      await prisma.$transaction(async (tx) => {
-        let modulePosition = await tx.module.count({ where: { classroomId: id } });
-        for (const division of plan.divisions) {
-          const module = await tx.module.create({ data: { classroomId: id, title: division.title, position: ++modulePosition, published: true } });
-          let lessonPosition = 0;
-          for (const theme of division.themes) {
-            const lesson = await tx.lesson.create({ data: { moduleId: module.id, title: theme.title, content: { text: theme.description }, position: ++lessonPosition, published: true } });
-            if (theme.topics.length) await tx.topic.createMany({ data: theme.topics.map((topic, index) => ({ lessonId: lesson.id, title: topic.title, description: topic.description, position: index + 1 })) });
-            if (theme.activity) await tx.activity.create({ data: { lessonId: lesson.id, ...theme.activity, maxScore: 100 } });
-          }
-        }
-      });
-    } else {
-      throw new Error("Acción inválida");
-    }
+      await prisma.lesson.create({ data: { moduleId: module.id, title: titleSchema.parse(body.title), content: { text: z.string().trim().max(5000).parse(body.description || "") }, position, published: true } });
+    } else if (body.action === "create_element") {
+      const target = await resolveTarget(id, body.lessonId && String(body.lessonId), body.topicId && String(body.topicId));
+      const title = titleSchema.parse(body.title), description = z.string().trim().max(5000).parse(body.description || "");
+      if (body.elementType === "SUBTOPIC" || body.elementType === "TEXT") {
+        const position = await prisma.topic.count({ where: { lessonId: target.lessonId } }) + 1;
+        await prisma.topic.create({ data: { lessonId: target.lessonId, title, description, position } });
+      } else if (activityTypes.includes(body.elementType)) {
+        await prisma.activity.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, description, type: body.elementType, dueAt: body.dueAt ? new Date(body.dueAt) : null, maxScore: Math.max(1, Number(body.maxScore || 100)) } });
+      } else if (resourceTypes.includes(body.elementType)) {
+        const url = z.string().trim().min(1).max(4000).parse(body.url);
+        await prisma.resource.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, type: body.elementType, url, size: body.size ? Number(body.size) : null } });
+      } else throw new Error("Elemento inválido");
+    } else if (body.action === "move_element") {
+      const target = await resolveTarget(id, body.lessonId && String(body.lessonId), body.topicId && String(body.topicId));
+      const elementId = String(body.elementId), kind = String(body.kind);
+      if (kind === "topic") {
+        const topic = await prisma.topic.findFirst({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+        if (!topic) throw new Error("Elemento inválido");
+        const position = await prisma.topic.count({ where: { lessonId: target.lessonId } }) + 1;
+        await prisma.topic.update({ where: { id: elementId }, data: { lessonId: target.lessonId, position } });
+      } else if (kind === "resource") {
+        const item = await prisma.resource.findFirst({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+        if (!item) throw new Error("Elemento inválido");
+        await prisma.resource.update({ where: { id: elementId }, data: target });
+      } else if (kind === "activity") {
+        const item = await prisma.activity.findFirst({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+        if (!item) throw new Error("Elemento inválido");
+        await prisma.activity.update({ where: { id: elementId }, data: target });
+      } else throw new Error("Elemento inválido");
+    } else if (body.action === "delete_element") {
+      const elementId = String(body.elementId), kind = String(body.kind);
+      if (kind === "topic") await prisma.topic.deleteMany({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+      else if (kind === "resource") await prisma.resource.deleteMany({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+      else if (kind === "activity") await prisma.activity.deleteMany({ where: { id: elementId, lesson: { module: { classroomId: id } } } });
+      else throw new Error("Elemento inválido");
+    } else throw new Error("Acción inválida");
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "No se pudo guardar la estructura. Revisa los datos e inténtalo de nuevo." }, { status: 400 });
+  } catch (error) {
+    console.error("course_editor_error", error);
+    return NextResponse.json({ error: "No se pudo guardar el cambio. Revisa los datos." }, { status: 400 });
   }
 }
