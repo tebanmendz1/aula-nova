@@ -39,6 +39,12 @@ enum ActivityType {
   QUIZ
   FORUM
   PROJECT
+  CHOICE
+  SURVEY
+  WIKI
+  GLOSSARY
+  WORKSHOP
+  DATABASE
 }
 
 enum SubmissionStatus {

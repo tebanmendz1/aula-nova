@@ -15,3 +15,9 @@ body{font-size:16px;line-height:1.5}
 .sidebar{width:270px}.content{margin-left:270px;width:calc(100% - 270px)}
 .profile strong,.sidebar nav button{font-size:14px}.course-info h3{font-size:16px}.stats small,.next small,.date-row>div small,.live-card small{font-size:11px}
 @media(max-width:760px){.sidebar{width:78px}.content{margin-left:78px;width:calc(100% - 78px)}}
+
+/* Escala general: aumenta proporcionalmente incluso los componentes con pixeles fijos. */
+@media(min-width:761px){body{zoom:1.08}}
+:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) :is(p,small,label,button,input,textarea,select,a,dt,dd,em){font-size:clamp(13px,.9vw,16px)}
+:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) :is(h1,h2,h3,h4){line-height:1.25}
+@media(max-width:760px){body{font-size:17px}:where(.shell,.auth-page,.classrooms-page,.detail-page,.tasks-page,.assignment-page,.calendar-page,.notifications-page,.users-page,.interaction-page,.course-editor) :is(p,small,label,button,input,textarea,select,a){font-size:13px}}

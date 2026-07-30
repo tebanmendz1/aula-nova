@@ -4,8 +4,9 @@ import { getRequestUser } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 const titleSchema = z.string().trim().min(3).max(160);
-const activityTypes = ["ASSIGNMENT", "QUIZ", "FORUM", "PROJECT"] as const;
+const activityTypes = ["ASSIGNMENT", "QUIZ", "FORUM", "PROJECT", "CHOICE", "SURVEY", "WIKI", "GLOSSARY", "WORKSHOP", "DATABASE"] as const;
 const resourceTypes = ["DOCUMENT", "VIDEO", "LINK", "AUDIO", "PRESENTATION", "INTERACTIVE"] as const;
+const resourceAliases = { IMAGE: "DOCUMENT", PDF: "DOCUMENT", EMBED: "LINK", LIVE_CLASS: "LINK" } as const;
 
 async function owns(id: string, user: { sub: string; role: string }) {
   return prisma.classroom.findFirst({ where: { id, ...(user.role === "TEACHER" ? { teacherId: user.sub } : user.role === "ADMIN" ? {} : { id: "__none__" }) }, select: { id: true } });
@@ -45,14 +46,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     } else if (body.action === "create_element") {
       const target = await resolveTarget(id, body.lessonId && String(body.lessonId), body.topicId && String(body.topicId));
       const title = titleSchema.parse(body.title), description = z.string().trim().max(5000).parse(body.description || "");
-      if (body.elementType === "SUBTOPIC" || body.elementType === "TEXT") {
+      if (["SUBTOPIC", "TEXT", "PAGE", "DIVIDER"].includes(body.elementType)) {
         const position = await prisma.topic.count({ where: { lessonId: target.lessonId } }) + 1;
         await prisma.topic.create({ data: { lessonId: target.lessonId, title, description, position } });
       } else if (activityTypes.includes(body.elementType)) {
         await prisma.activity.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, description, type: body.elementType, dueAt: body.dueAt ? new Date(body.dueAt) : null, maxScore: Math.max(1, Number(body.maxScore || 100)) } });
-      } else if (resourceTypes.includes(body.elementType)) {
+      } else if (resourceTypes.includes(body.elementType) || body.elementType in resourceAliases) {
         const url = z.string().trim().min(1).max(4000).parse(body.url);
-        await prisma.resource.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, type: body.elementType, url, size: body.size ? Number(body.size) : null } });
+        const type = body.elementType in resourceAliases ? resourceAliases[body.elementType as keyof typeof resourceAliases] : body.elementType;
+        await prisma.resource.create({ data: { lessonId: target.lessonId, topicId: target.topicId, title, type, url, size: body.size ? Number(body.size) : null } });
       } else throw new Error("Elemento inválido");
     } else if (body.action === "move_element") {
       const target = await resolveTarget(id, body.lessonId && String(body.lessonId), body.topicId && String(body.topicId));
