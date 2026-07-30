@@ -27,7 +27,8 @@ export default function ScormPlayer({ params }: { params: Promise<{ resourceId: 
         if (!response.ok) throw new Error(`No se encontró el archivo de inicio (${response.status}).`);
         let html = await response.text();
         const base = `<base href="/api/scorm/${encodeURIComponent(resourceId)}/${directory ? `${directory}/` : ""}">`;
-        html = /<head[^>]*>/i.test(html) ? html.replace(/<head([^>]*)>/i, `<head$1>${base}`) : `${base}${html}`;
+        const responsive = `<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style id="aulanova-responsive-scorm">html,body{margin:0;min-width:0;min-height:100%;max-width:100%;overflow:auto}video,img,canvas,svg,object,embed,iframe{max-width:100%}video{width:100%;height:auto;max-height:100vh;object-fit:contain}iframe{max-height:100vh}</style>`;
+        html = /<head[^>]*>/i.test(html) ? html.replace(/<head([^>]*)>/i, `<head$1>${base}${responsive}`) : `${base}${responsive}${html}`;
         document.open();
         document.write(html);
         document.close();
