@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import GuidedTour from "./components/GuidedTour";
 import PersistentSidebar from "./components/PersistentSidebar";
+import { AppDialogs } from "./components/AppDialogs";
 
 export const metadata: Metadata = {
   title: "AulaNova — Tu espacio para enseñar y aprender",
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es"><body><PersistentSidebar/>{children}<GuidedTour/></body></html>;
+  return <html lang="es"><body><AppDialogs><PersistentSidebar/>{children}<GuidedTour/></AppDialogs></body></html>;
 }
