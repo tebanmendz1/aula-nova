@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ClipboardCheck,
   Database,
+  Eye,
   File as FileIcon,
   FileText,
   FolderOpen,
@@ -520,10 +521,7 @@ export default function CourseEditor({
               temas · {itemCount} elementos
             </p>
           </div>
-          <button onClick={() => setDialog({ mode: "division" })}>
-            <Plus />
-            Nueva unidad
-          </button>
+          <div className="editor-heading-actions"><Link href={`/aulas/${id}?preview=student`} target="_blank"><Eye/>Vista previa como alumno</Link><button onClick={() => setDialog({ mode: "division" })}><Plus/>Nueva unidad</button></div>
         </section>
         {error && (
           <div className="editor-error">
@@ -599,7 +597,7 @@ export default function CourseEditor({
                 </header>
                 <div className="themes">
                   {module.lessons.map((lesson, lessonIndex) => (
-                    <details key={lesson.id} open>
+                    <details key={lesson.id}>
                       <summary>
                         <ChevronDown />
                         <div>

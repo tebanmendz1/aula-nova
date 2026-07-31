@@ -1,53 +1,1026 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, use, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Bell, BookOpen, CheckCircle2, ClipboardList, ExternalLink, FileText, GraduationCap, Layers3, LoaderCircle, Megaphone, Plus, Send, Users, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  BookOpen,
+  CheckCircle2,
+  ClipboardList,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  Layers3,
+  LoaderCircle,
+  Megaphone,
+  Plus,
+  Send,
+  Users,
+  X,
+} from "lucide-react";
 import "./classroom-detail.css";
+import "./student-preview.css";
 
-type Submission={id:string;content:string|null;score:number|null;feedback:string|null;submittedAt:string;student:{name:string}};
-type Activity={id:string;title:string;description:string|null;type:string;dueAt:string|null;maxScore:number;submissions:Submission[]};
-type Lesson={id:string;title:string;content:{text?:string}|null;progress?:{completedAt:string}[];topics?:{id:string;title:string;description:string|null}[];resources:{id:string;title:string;url:string;type:string}[];activities:Activity[]};
-type Module={id:string;title:string;lessons:Lesson[]};
-type Classroom={id:string;title:string;description:string|null;color:string;status:string;inviteCode:string;teacher:{name:string;email:string};enrollments:{id:string;progress:number;student:{id:string;name:string;email:string}}[];announcements:{id:string;title:string;body:string;publishedAt:string}[];modules:Module[]};
-type Action="module"|"lesson"|"resource"|"activity"|"announcement"|"submission"|"grade";
+type Submission = {
+  id: string;
+  content: string | null;
+  score: number | null;
+  feedback: string | null;
+  submittedAt: string;
+  student: { name: string };
+};
+type Activity = {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  dueAt: string | null;
+  maxScore: number;
+  submissions: Submission[];
+};
+type Lesson = {
+  id: string;
+  title: string;
+  content: { text?: string } | null;
+  progress?: { completedAt: string }[];
+  topics?: { id: string; title: string; description: string | null }[];
+  resources: { id: string; title: string; url: string; type: string }[];
+  activities: Activity[];
+};
+type Module = { id: string; title: string; lessons: Lesson[] };
+type Classroom = {
+  id: string;
+  title: string;
+  description: string | null;
+  color: string;
+  status: string;
+  inviteCode: string;
+  teacher: { name: string; email: string };
+  enrollments: {
+    id: string;
+    progress: number;
+    student: { id: string; name: string; email: string };
+  }[];
+  announcements: {
+    id: string;
+    title: string;
+    body: string;
+    publishedAt: string;
+  }[];
+  modules: Module[];
+};
+type Action =
+  | "module"
+  | "lesson"
+  | "resource"
+  | "activity"
+  | "announcement"
+  | "submission"
+  | "grade";
 
-export default function ClassroomDetail({params}:{params:Promise<{id:string}>}) {
-  const {id}=use(params); const [classroom,setClassroom]=useState<Classroom|null>(null); const [role,setRole]=useState("STUDENT"); const [tab,setTab]=useState("content"); const [loading,setLoading]=useState(true); const [action,setAction]=useState<Action|null>(null); const [target,setTarget]=useState(""); const [saving,setSaving]=useState(false); const [error,setError]=useState("");
-  async function load(){const r=await fetch(`/api/classrooms/${id}`,{cache:"no-store"});const d=await r.json();if(r.ok){setClassroom(d.classroom);setRole(d.role)}setLoading(false)} useEffect(()=>{load()},[id]);
-  const lessons=useMemo(()=>classroom?.modules.flatMap(m=>m.lessons)??[],[classroom]); const activities=useMemo(()=>lessons.flatMap(l=>l.activities),[lessons]); const canEdit=role==="ADMIN"||role==="TEACHER";
-  useEffect(()=>{const nav=document.querySelector(".detail-tabs");if(!nav||nav.querySelector(".interaction-link"))return;const link=document.createElement("a");link.className="interaction-link";link.href=`/aulas/${id}/interaccion`;link.textContent="Cuestionarios y foros";nav.appendChild(link);return()=>link.remove()},[id]);
-  useEffect(()=>{if(!canEdit)return;const nav=document.querySelector(".detail-tabs");if(!nav||nav.querySelector(".editor-link"))return;const link=document.createElement("a");link.className="interaction-link editor-link";link.href=`/aulas/${id}/editor`;link.textContent="Editor del curso";nav.appendChild(link);return()=>link.remove()},[id,canEdit]);
-  useEffect(()=>{if(!canEdit)return;const nav=document.querySelector(".detail-tabs");if(!nav||nav.querySelector(".settings-link"))return;const link=document.createElement("a");link.className="interaction-link settings-link";link.href=`/aulas/${id}/configuracion`;link.textContent="Configuración";nav.appendChild(link);return()=>link.remove()},[id,canEdit]);
-  useEffect(()=>{if(!canEdit)return;const nav=document.querySelector(".detail-tabs");if(!nav||nav.querySelector(".enrollments-link"))return;const link=document.createElement("a");link.className="interaction-link enrollments-link";link.href=`/aulas/${id}/matriculas`;link.textContent="Matrículas y contrato";nav.appendChild(link);return()=>link.remove()},[id,canEdit]);
-  useEffect(()=>{const nav=document.querySelector(".detail-tabs"),button=nav?.querySelectorAll("button")[1];if(!button)return;const navigate=()=>{window.location.href=`/aulas/${id}/tareas`};button.addEventListener("click",navigate);return()=>button.removeEventListener("click",navigate)},[id]);
-  useEffect(()=>{if(tab!=="content"||!classroom)return;const body=document.querySelector(".detail-body"),content=body?.querySelector(":scope > section"),moduleNodes=Array.from(document.querySelectorAll<HTMLElement>(".module")),lessonNodes=Array.from(document.querySelectorAll<HTMLElement>(".lesson"));if(!body||!content)return;body.classList.add("course-layout");const index=document.createElement("aside");index.className="course-index";const heading=document.createElement("strong");heading.textContent="Índice del aula";index.appendChild(heading);classroom.modules.forEach((module,position)=>{const target=`module-${module.id}`,node=moduleNodes[position];if(node)node.id=target;const link=document.createElement("a");link.href=`#${target}`;link.innerHTML=`<span>${String(position+1).padStart(2,"0")}</span><div><b>${module.title.replace(/[<>]/g,"")}</b><small>${module.lessons.length} lecciones</small></div>`;index.appendChild(link)});body.insertBefore(index,content);const lessonList=classroom.modules.flatMap(module=>module.lessons);const activityLinks=lessonNodes.flatMap((node,position)=>(lessonList[position]?.activities||[]).map(activity=>{const link=document.createElement("a");link.className="course-activity";link.href=`/aulas/${id}/tareas/${activity.id}`;link.innerHTML=`<span>✓</span><div><b>${activity.title.replace(/[<>]/g,"")}</b><small>${activity.type} · ${activity.dueAt?new Date(activity.dueAt).toLocaleDateString("es"):"Sin fecha límite"}</small></div>`;node.appendChild(link);return link}));return()=>{index.remove();activityLinks.forEach(link=>link.remove());body.classList.remove("course-layout")}},[tab,classroom,id]);
-  useEffect(()=>{if(role!=="STUDENT"||tab!=="content"||!classroom)return;const nodes=Array.from(document.querySelectorAll<HTMLElement>(".lesson"));const lessonList=classroom.modules.flatMap(module=>module.lessons);const buttons=nodes.map((node,index)=>{const lesson=lessonList[index];const button=document.createElement("button");button.className="progress-button";button.textContent=lesson.progress?.length?"✓ Lección completada":"Marcar como completada";button.onclick=()=>toggleProgress(lesson);node.appendChild(button);return button});return()=>buttons.forEach(button=>button.remove())},[role,tab,classroom]);
-  useEffect(()=>{if(tab!=="content"||!classroom)return;const nodes=Array.from(document.querySelectorAll<HTMLElement>(".lesson")),lessonList=classroom.modules.flatMap(module=>module.lessons);const groups=nodes.map((node,index)=>{const topics=lessonList[index]?.topics||[];if(!topics.length)return null;const group=document.createElement("div");group.className="lesson-topics";const title=document.createElement("small");title.textContent="SUBTEMAS";group.appendChild(title);topics.forEach((topic,position)=>{const item=document.createElement("div"),number=document.createElement("span"),copy=document.createElement("div"),heading=document.createElement("b"),description=document.createElement("p");number.textContent=String(position+1);heading.textContent=topic.title;description.textContent=topic.description||"";copy.append(heading,description);item.append(number,copy);group.appendChild(item)});node.appendChild(group);return group});return()=>groups.forEach(group=>group?.remove())},[tab,classroom]);
-  useEffect(()=>{if(!canEdit||tab!=="content")return;const page=document.querySelector(".detail-page"),body=document.querySelector(".detail-body"),content=body?.querySelector(":scope > section");if(!page||!content)return;page.classList.add("modern-editor-only");const notice=document.createElement("div");notice.className="modern-editor-notice";const copy=document.createElement("div"),title=document.createElement("b"),text=document.createElement("p"),link=document.createElement("a");title.textContent="Edición centralizada";text.textContent="La estructura, los recursos y las actividades se administran desde el nuevo editor visual.";link.href=`/aulas/${id}/editor`;link.textContent="Abrir Editor del curso";copy.append(title,text);notice.append(copy,link);content.insertBefore(notice,content.firstChild);return()=>{page.classList.remove("modern-editor-only");notice.remove()}},[canEdit,tab,id]);
-  async function submit(e:FormEvent<HTMLFormElement>){
-    e.preventDefault();setSaving(true);setError("");const f=new FormData(e.currentTarget);const payload:any={action};
-    f.forEach((value,key)=>{if(typeof value==="string")payload[key]=value});
-    const file=f.get("file");
-    if(action==="resource"&&file instanceof File&&/\.(zip|rar)$/i.test(file.name)){const archive=new FormData();archive.set("file",file);archive.set("classroomId",id);archive.set("lessonId",String(payload.lessonId||target));archive.set("title",String(payload.title||file.name));const response=await fetch("/api/scorm/upload",{method:"POST",body:archive});const result=await response.json();if(!response.ok){setError(result.error||"No se pudo importar SCORM.");setSaving(false);return}await load();setSaving(false);setAction(null);setTarget("");return}
-    if(action==="resource"&&payload.type==="INTERACTIVE"&&!/^https?:\/\//i.test(String(payload.url||""))){setError("La simulación necesita una URL o un paquete SCORM .zip/.rar.");setSaving(false);return}
-    if(file instanceof File&&file.size){const upload=new FormData();upload.set("file",file);upload.set("classroomId",id);const uploadResponse=await fetch("/api/storage/upload",{method:"POST",body:upload});const uploadResult=await uploadResponse.json();if(!uploadResponse.ok){setError(uploadResult.error);setSaving(false);return}if(action==="resource"){payload.url=uploadResult.url;if(!payload.title)payload.title=uploadResult.name}else if(action==="submission")payload.fileUrl=uploadResult.url}
-    if(target){if(action==="lesson")payload.moduleId=target;if(action==="resource"||action==="activity")payload.lessonId=target;if(action==="submission")payload.activityId=target;if(action==="grade")payload.submissionId=target}
-    const r=await fetch(`/api/classrooms/${id}/content`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const d=await r.json();if(!r.ok){setError(d.error);setSaving(false);return}await load();setSaving(false);setAction(null);setTarget("")
+export default function ClassroomDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const preview = useSearchParams().get("preview") === "student";
+  const [classroom, setClassroom] = useState<Classroom | null>(null);
+  const [role, setRole] = useState("STUDENT");
+  const [tab, setTab] = useState("content");
+  const [loading, setLoading] = useState(true);
+  const [action, setAction] = useState<Action | null>(null);
+  const [target, setTarget] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  async function load() {
+    const r = await fetch(`/api/classrooms/${id}`, { cache: "no-store" });
+    const d = await r.json();
+    if (r.ok) {
+      setClassroom(d.classroom);
+      setRole(d.role);
+    }
+    setLoading(false);
   }
-  function open(next:Action,nextTarget=""){setAction(next);setTarget(nextTarget);setError("")}
-  async function toggleProgress(lesson:Lesson){await fetch(`/api/classrooms/${id}/engagement`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"progress",lessonId:lesson.id,completed:!lesson.progress?.length})});await load()}
-  useEffect(()=>{if(action!=="resource"&&action!=="submission")return;const form=document.querySelector<HTMLFormElement>(".action-modal");const buttons=form?.querySelector(".action-buttons");if(!form||!buttons)return;form.querySelector<HTMLInputElement>('input[name="url"]')?.removeAttribute("required");form.querySelector<HTMLTextAreaElement>('textarea[name="content"]')?.removeAttribute("required");const label=document.createElement("label");label.textContent=action==="resource"?"Subir archivo o paquete SCORM .zip/.rar (opcional)":"Adjuntar archivo (opcional)";const input=document.createElement("input");input.type="file";input.name="file";input.accept=action==="resource"?".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mp3,.docx,.pptx,.zip,.rar":".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mp3,.docx,.pptx";label.appendChild(input);form.insertBefore(label,buttons);return()=>label.remove()},[action]);
-  useEffect(()=>{if(action!=="resource")return;const select=document.querySelector<HTMLSelectElement>('.action-modal select[name="type"]');if(!select||select.querySelector('option[value="INTERACTIVE"]'))return;const option=document.createElement("option");option.value="INTERACTIVE";option.textContent="Simulación interactiva";select.appendChild(option);return()=>option.remove()},[action]);
-  useEffect(()=>{if(tab!=="content"||!classroom)return;const resources=classroom.modules.flatMap(module=>module.lessons.flatMap(lesson=>lesson.resources));const links=Array.from(document.querySelectorAll<HTMLAnchorElement>(".resource"));const interactive=links.map((link,index)=>{const resource=resources[index];if(resource?.type!=="INTERACTIVE")return null;link.classList.add("interactive-resource");link.removeAttribute("target");link.onclick=(event)=>{event.preventDefault();const backdrop=document.createElement("div");backdrop.className="simulation-backdrop";const panel=document.createElement("div");panel.className="simulation-panel";const header=document.createElement("header");const title=document.createElement("strong");title.textContent=resource.title;const close=document.createElement("button");close.textContent="Cerrar ×";close.onclick=()=>backdrop.remove();header.append(title,close);const frame=document.createElement("iframe");frame.src=resource.url;frame.title=resource.title;frame.allow="fullscreen; autoplay; clipboard-read; clipboard-write";frame.sandbox.add("allow-scripts","allow-forms","allow-popups","allow-pointer-lock","allow-presentation","allow-same-origin");panel.append(header,frame);backdrop.appendChild(panel);backdrop.onclick=event=>{if(event.target===backdrop)backdrop.remove()};document.body.appendChild(backdrop)};return link});return()=>interactive.forEach(link=>{if(link){link.onclick=null;link.classList.remove("interactive-resource")}})},[tab,classroom]);
-  if(loading)return <main className="detail-state"><LoaderCircle className="spin"/>Cargando aula…</main>; if(!classroom)return <main className="detail-state">No tienes acceso a esta aula.</main>;
-  return <main className="detail-page"><header className="detail-header"><Link href="/aulas"><ArrowLeft/>Mis aulas</Link><Link className="detail-brand" href="/"><GraduationCap/>Aula<b>Nova</b></Link><button><Bell/></button></header><section className="class-hero" style={{background:`linear-gradient(130deg,${classroom.color},${classroom.color}bb)`}}><div><small>{classroom.status==="ACTIVE"?"AULA PUBLICADA":"AULA EN BORRADOR"}</small><h1>{classroom.title}</h1><p>{classroom.description||"Espacio de aprendizaje"}</p><span>Docente: {classroom.teacher.name} · {classroom.enrollments.length} estudiantes</span></div>{canEdit&&<div className="hero-code"><small>CÓDIGO DE INVITACIÓN</small><b>{classroom.inviteCode}</b></div>}</section><nav className="detail-tabs"><button className={tab==="content"?"active":""} onClick={()=>setTab("content")}><Layers3/>Contenido</button><button className={tab==="tasks"?"active":""} onClick={()=>setTab("tasks")}><ClipboardList/>Actividades <b>{activities.length}</b></button><button className={tab==="announcements"?"active":""} onClick={()=>setTab("announcements")}><Megaphone/>Anuncios</button><button className={tab==="people"?"active":""} onClick={()=>setTab("people")}><Users/>Participantes</button></nav><div className="detail-body">
-    {tab==="content"&&<section><div className="detail-title"><div><h2>Contenido del aula</h2><p>Módulos, lecciones y recursos educativos.</p></div>{canEdit&&<button onClick={()=>open("module")}><Plus/>Nuevo módulo</button>}</div><div className="modules">{classroom.modules.map((module,index)=><article className="module" key={module.id}><header><span>{String(index+1).padStart(2,"0")}</span><div><small>MÓDULO {index+1}</small><h3>{module.title}</h3></div>{canEdit&&<button onClick={()=>open("lesson",module.id)}><Plus/>Lección</button>}</header>{module.lessons.map(lesson=><div className="lesson" key={lesson.id}><div className="lesson-copy"><BookOpen/><div><h4>{lesson.title}</h4><p>{lesson.content?.text||"Sin contenido descriptivo."}</p></div></div>{canEdit&&<div className="lesson-actions"><button onClick={()=>open("resource",lesson.id)}>+ Recurso</button><button onClick={()=>open("activity",lesson.id)}>+ Actividad</button></div>}{lesson.resources.map(resource=><a className="resource" key={resource.id} href={resource.url} target="_blank" rel="noreferrer"><FileText/><span><b>{resource.title}</b><small>{resource.type}</small></span><ExternalLink/></a>)}</div>)}</article>)}{!classroom.modules.length&&<Empty text={canEdit?"Crea el primer módulo para organizar tus lecciones.":"El docente aún no ha publicado contenido."}/>}</div></section>}
-    {tab==="tasks"&&<section><div className="detail-title"><div><h2>Actividades y entregas</h2><p>Tareas, proyectos y calificaciones.</p></div></div><div className="task-list">{activities.map(activity=><article className="task" key={activity.id}><div className="task-main"><span><ClipboardList/></span><div><small>{activity.type}</small><h3>{activity.title}</h3><p>{activity.description||"Sin instrucciones adicionales."}</p><em>{activity.dueAt?`Entrega: ${new Date(activity.dueAt).toLocaleString("es")}`:"Sin fecha límite"} · {activity.maxScore} puntos</em></div></div>{role==="STUDENT"?<div className="student-submit">{activity.submissions[0]?.score!=null?<div className="grade"><CheckCircle2/><b>{activity.submissions[0].score}/{activity.maxScore}</b><span>{activity.submissions[0].feedback}</span></div>:<button onClick={()=>open("submission",activity.id)}><Send/> {activity.submissions.length?"Actualizar entrega":"Entregar tarea"}</button>}</div>:<div className="submissions"><b>{activity.submissions.length} entregas</b>{activity.submissions.map(s=><button key={s.id} onClick={()=>open("grade",s.id)}>{s.student.name} · {s.score==null?"Calificar":`${s.score} pts`}</button>)}</div>}</article>)}{!activities.length&&<Empty text="Todavía no hay actividades en esta aula."/>}</div></section>}
-    {tab==="announcements"&&<section><div className="detail-title"><div><h2>Anuncios</h2><p>Novedades importantes para el aula.</p></div>{canEdit&&<button onClick={()=>open("announcement")}><Plus/>Nuevo anuncio</button>}</div><div className="announcement-list">{classroom.announcements.map(a=><article key={a.id}><span><Megaphone/></span><div><small>{new Date(a.publishedAt).toLocaleString("es")}</small><h3>{a.title}</h3><p>{a.body}</p></div></article>)}{!classroom.announcements.length&&<Empty text="No hay anuncios publicados."/>}</div></section>}
-    {tab==="people"&&<section><div className="detail-title"><div><h2>Participantes</h2><p>Docente y estudiantes matriculados.</p></div></div><div className="people-list"><article><span>DS</span><div><b>{classroom.teacher.name}</b><small>{classroom.teacher.email}</small></div><em>Docente</em></article>{classroom.enrollments.map(e=><article key={e.id}><span>{e.student.name.split(" ").map(p=>p[0]).join("").slice(0,2)}</span><div><b>{e.student.name}</b><small>{e.student.email}</small></div><em>Alumno · {e.progress}%</em></article>)}</div></section>}
-  </div>{action&&<ActionModal action={action} modules={classroom.modules} lessons={lessons} target={target} saving={saving} error={error} close={()=>setAction(null)} submit={submit}/>}</main>;
+  useEffect(() => {
+    load();
+  }, [id]);
+  const lessons = useMemo(
+    () => classroom?.modules.flatMap((m) => m.lessons) ?? [],
+    [classroom],
+  );
+  const activities = useMemo(
+    () => lessons.flatMap((l) => l.activities),
+    [lessons],
+  );
+  const canEdit = !preview && (role === "ADMIN" || role === "TEACHER");
+  useEffect(() => {
+    if (!preview) return;
+    const page = document.querySelector(".detail-page");
+    if (!page) return;
+    page.classList.add("preview-mode");
+    const banner = document.createElement("div");
+    banner.className = "student-preview-banner";
+    banner.innerHTML = `<strong>Vista previa como alumno</strong><span>Las acciones están desactivadas.</span><a href="/aulas/${id}/editor">Volver al editor</a>`;
+    page.prepend(banner);
+    return () => { banner.remove(); page.classList.remove("preview-mode"); };
+  }, [preview, id]);
+  useEffect(() => {
+    const nav = document.querySelector(".detail-tabs");
+    if (!nav || nav.querySelector(".interaction-link")) return;
+    const link = document.createElement("a");
+    link.className = "interaction-link";
+    link.href = `/aulas/${id}/interaccion`;
+    link.textContent = "Cuestionarios y foros";
+    nav.appendChild(link);
+    return () => link.remove();
+  }, [id]);
+  useEffect(() => {
+    if (!canEdit) return;
+    const nav = document.querySelector(".detail-tabs");
+    if (!nav || nav.querySelector(".editor-link")) return;
+    const link = document.createElement("a");
+    link.className = "interaction-link editor-link";
+    link.href = `/aulas/${id}/editor`;
+    link.textContent = "Editor del curso";
+    nav.appendChild(link);
+    return () => link.remove();
+  }, [id, canEdit]);
+  useEffect(() => {
+    if (!canEdit) return;
+    const nav = document.querySelector(".detail-tabs");
+    if (!nav || nav.querySelector(".settings-link")) return;
+    const link = document.createElement("a");
+    link.className = "interaction-link settings-link";
+    link.href = `/aulas/${id}/configuracion`;
+    link.textContent = "Configuración";
+    nav.appendChild(link);
+    return () => link.remove();
+  }, [id, canEdit]);
+  useEffect(() => {
+    if (!canEdit) return;
+    const nav = document.querySelector(".detail-tabs");
+    if (!nav || nav.querySelector(".enrollments-link")) return;
+    const link = document.createElement("a");
+    link.className = "interaction-link enrollments-link";
+    link.href = `/aulas/${id}/matriculas`;
+    link.textContent = "Matrículas y contrato";
+    nav.appendChild(link);
+    return () => link.remove();
+  }, [id, canEdit]);
+  useEffect(() => {
+    const nav = document.querySelector(".detail-tabs"),
+      button = nav?.querySelectorAll("button")[1];
+    if (!button) return;
+    const navigate = () => {
+      window.location.href = `/aulas/${id}/tareas`;
+    };
+    button.addEventListener("click", navigate);
+    return () => button.removeEventListener("click", navigate);
+  }, [id]);
+  useEffect(() => {
+    if (tab !== "content" || !classroom) return;
+    const body = document.querySelector(".detail-body"),
+      content = body?.querySelector(":scope > section"),
+      moduleNodes = Array.from(
+        document.querySelectorAll<HTMLElement>(".module"),
+      ),
+      lessonNodes = Array.from(
+        document.querySelectorAll<HTMLElement>(".lesson"),
+      );
+    if (!body || !content) return;
+    body.classList.add("course-layout");
+    const index = document.createElement("aside");
+    index.className = "course-index";
+    const heading = document.createElement("strong");
+    heading.textContent = "Índice del aula";
+    index.appendChild(heading);
+    classroom.modules.forEach((module, position) => {
+      const target = `module-${module.id}`,
+        node = moduleNodes[position];
+      if (node) node.id = target;
+      const link = document.createElement("a");
+      link.href = `#${target}`;
+      link.innerHTML = `<span>${String(position + 1).padStart(2, "0")}</span><div><b>${module.title.replace(/[<>]/g, "")}</b><small>${module.lessons.length} lecciones</small></div>`;
+      index.appendChild(link);
+    });
+    body.insertBefore(index, content);
+    const lessonList = classroom.modules.flatMap((module) => module.lessons);
+    const activityLinks = lessonNodes.flatMap((node, position) =>
+      (lessonList[position]?.activities || []).map((activity) => {
+        const link = document.createElement("a");
+        link.className = "course-activity";
+        link.href = `/aulas/${id}/tareas/${activity.id}`;
+        link.innerHTML = `<span>✓</span><div><b>${activity.title.replace(/[<>]/g, "")}</b><small>${activity.type} · ${activity.dueAt ? new Date(activity.dueAt).toLocaleDateString("es") : "Sin fecha límite"}</small></div>`;
+        node.appendChild(link);
+        return link;
+      }),
+    );
+    return () => {
+      index.remove();
+      activityLinks.forEach((link) => link.remove());
+      body.classList.remove("course-layout");
+    };
+  }, [tab, classroom, id]);
+  useEffect(() => {
+    if ((role !== "STUDENT" && !preview) || tab !== "content" || !classroom) return;
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".lesson"));
+    const lessonList = classroom.modules.flatMap((module) => module.lessons);
+    const buttons = nodes.map((node, index) => {
+      const lesson = lessonList[index];
+      const button = document.createElement("button");
+      button.className = "progress-button";
+      button.disabled = preview;
+      button.textContent = lesson.progress?.length
+        ? "✓ Lección completada"
+        : "Marcar como completada";
+      button.onclick = () => toggleProgress(lesson);
+      node.appendChild(button);
+      return button;
+    });
+    return () => buttons.forEach((button) => button.remove());
+  }, [role, preview, tab, classroom]);
+  useEffect(() => {
+    if (tab !== "content" || !classroom) return;
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".lesson")),
+      lessonList = classroom.modules.flatMap((module) => module.lessons);
+    const groups = nodes.map((node, index) => {
+      const topics = lessonList[index]?.topics || [];
+      if (!topics.length) return null;
+      const group = document.createElement("div");
+      group.className = "lesson-topics";
+      const title = document.createElement("small");
+      title.textContent = "SUBTEMAS";
+      group.appendChild(title);
+      topics.forEach((topic, position) => {
+        const item = document.createElement("div"),
+          number = document.createElement("span"),
+          copy = document.createElement("div"),
+          heading = document.createElement("b"),
+          description = document.createElement("p");
+        number.textContent = String(position + 1);
+        heading.textContent = topic.title;
+        description.textContent = topic.description || "";
+        copy.append(heading, description);
+        item.append(number, copy);
+        group.appendChild(item);
+      });
+      node.appendChild(group);
+      return group;
+    });
+    return () => groups.forEach((group) => group?.remove());
+  }, [tab, classroom]);
+  useEffect(() => {
+    if (!canEdit || tab !== "content") return;
+    const page = document.querySelector(".detail-page"),
+      body = document.querySelector(".detail-body"),
+      content = body?.querySelector(":scope > section");
+    if (!page || !content) return;
+    page.classList.add("modern-editor-only");
+    const notice = document.createElement("div");
+    notice.className = "modern-editor-notice";
+    const copy = document.createElement("div"),
+      title = document.createElement("b"),
+      text = document.createElement("p"),
+      link = document.createElement("a");
+    title.textContent = "Edición centralizada";
+    text.textContent =
+      "La estructura, los recursos y las actividades se administran desde el nuevo editor visual.";
+    link.href = `/aulas/${id}/editor`;
+    link.textContent = "Abrir Editor del curso";
+    copy.append(title, text);
+    notice.append(copy, link);
+    content.insertBefore(notice, content.firstChild);
+    return () => {
+      page.classList.remove("modern-editor-only");
+      notice.remove();
+    };
+  }, [canEdit, tab, id]);
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    const f = new FormData(e.currentTarget);
+    const payload: any = { action };
+    f.forEach((value, key) => {
+      if (typeof value === "string") payload[key] = value;
+    });
+    const file = f.get("file");
+    if (
+      action === "resource" &&
+      file instanceof File &&
+      /\.(zip|rar)$/i.test(file.name)
+    ) {
+      const archive = new FormData();
+      archive.set("file", file);
+      archive.set("classroomId", id);
+      archive.set("lessonId", String(payload.lessonId || target));
+      archive.set("title", String(payload.title || file.name));
+      const response = await fetch("/api/scorm/upload", {
+        method: "POST",
+        body: archive,
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        setError(result.error || "No se pudo importar SCORM.");
+        setSaving(false);
+        return;
+      }
+      await load();
+      setSaving(false);
+      setAction(null);
+      setTarget("");
+      return;
+    }
+    if (
+      action === "resource" &&
+      payload.type === "INTERACTIVE" &&
+      !/^https?:\/\//i.test(String(payload.url || ""))
+    ) {
+      setError("La simulación necesita una URL o un paquete SCORM .zip/.rar.");
+      setSaving(false);
+      return;
+    }
+    if (file instanceof File && file.size) {
+      const upload = new FormData();
+      upload.set("file", file);
+      upload.set("classroomId", id);
+      const uploadResponse = await fetch("/api/storage/upload", {
+        method: "POST",
+        body: upload,
+      });
+      const uploadResult = await uploadResponse.json();
+      if (!uploadResponse.ok) {
+        setError(uploadResult.error);
+        setSaving(false);
+        return;
+      }
+      if (action === "resource") {
+        payload.url = uploadResult.url;
+        if (!payload.title) payload.title = uploadResult.name;
+      } else if (action === "submission") payload.fileUrl = uploadResult.url;
+    }
+    if (target) {
+      if (action === "lesson") payload.moduleId = target;
+      if (action === "resource" || action === "activity")
+        payload.lessonId = target;
+      if (action === "submission") payload.activityId = target;
+      if (action === "grade") payload.submissionId = target;
+    }
+    const r = await fetch(`/api/classrooms/${id}/content`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      setError(d.error);
+      setSaving(false);
+      return;
+    }
+    await load();
+    setSaving(false);
+    setAction(null);
+    setTarget("");
+  }
+  function open(next: Action, nextTarget = "") {
+    setAction(next);
+    setTarget(nextTarget);
+    setError("");
+  }
+  async function toggleProgress(lesson: Lesson) {
+    await fetch(`/api/classrooms/${id}/engagement`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "progress",
+        lessonId: lesson.id,
+        completed: !lesson.progress?.length,
+      }),
+    });
+    await load();
+  }
+  useEffect(() => {
+    if (action !== "resource" && action !== "submission") return;
+    const form = document.querySelector<HTMLFormElement>(".action-modal");
+    const buttons = form?.querySelector(".action-buttons");
+    if (!form || !buttons) return;
+    form
+      .querySelector<HTMLInputElement>('input[name="url"]')
+      ?.removeAttribute("required");
+    form
+      .querySelector<HTMLTextAreaElement>('textarea[name="content"]')
+      ?.removeAttribute("required");
+    const label = document.createElement("label");
+    label.textContent =
+      action === "resource"
+        ? "Subir archivo o paquete SCORM .zip/.rar (opcional)"
+        : "Adjuntar archivo (opcional)";
+    const input = document.createElement("input");
+    input.type = "file";
+    input.name = "file";
+    input.accept =
+      action === "resource"
+        ? ".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mp3,.docx,.pptx,.zip,.rar"
+        : ".pdf,.png,.jpg,.jpeg,.webp,.mp4,.mp3,.docx,.pptx";
+    label.appendChild(input);
+    form.insertBefore(label, buttons);
+    return () => label.remove();
+  }, [action]);
+  useEffect(() => {
+    if (action !== "resource") return;
+    const select = document.querySelector<HTMLSelectElement>(
+      '.action-modal select[name="type"]',
+    );
+    if (!select || select.querySelector('option[value="INTERACTIVE"]')) return;
+    const option = document.createElement("option");
+    option.value = "INTERACTIVE";
+    option.textContent = "Simulación interactiva";
+    select.appendChild(option);
+    return () => option.remove();
+  }, [action]);
+  useEffect(() => {
+    if (tab !== "content" || !classroom) return;
+    const resources = classroom.modules.flatMap((module) =>
+      module.lessons.flatMap((lesson) => lesson.resources),
+    );
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".resource"),
+    );
+    const interactive = links.map((link, index) => {
+      const resource = resources[index];
+      if (resource?.type !== "INTERACTIVE") return null;
+      link.classList.add("interactive-resource");
+      link.removeAttribute("target");
+      link.onclick = (event) => {
+        event.preventDefault();
+        const backdrop = document.createElement("div");
+        backdrop.className = "simulation-backdrop";
+        const panel = document.createElement("div");
+        panel.className = "simulation-panel";
+        const header = document.createElement("header");
+        const title = document.createElement("strong");
+        title.textContent = resource.title;
+        const close = document.createElement("button");
+        close.textContent = "Cerrar ×";
+        close.onclick = () => backdrop.remove();
+        header.append(title, close);
+        const frame = document.createElement("iframe");
+        frame.src = resource.url;
+        frame.title = resource.title;
+        frame.allow = "fullscreen; autoplay; clipboard-read; clipboard-write";
+        frame.sandbox.add(
+          "allow-scripts",
+          "allow-forms",
+          "allow-popups",
+          "allow-pointer-lock",
+          "allow-presentation",
+          "allow-same-origin",
+        );
+        panel.append(header, frame);
+        backdrop.appendChild(panel);
+        backdrop.onclick = (event) => {
+          if (event.target === backdrop) backdrop.remove();
+        };
+        document.body.appendChild(backdrop);
+      };
+      return link;
+    });
+    return () =>
+      interactive.forEach((link) => {
+        if (link) {
+          link.onclick = null;
+          link.classList.remove("interactive-resource");
+        }
+      });
+  }, [tab, classroom]);
+  if (loading)
+    return (
+      <main className="detail-state">
+        <LoaderCircle className="spin" />
+        Cargando aula…
+      </main>
+    );
+  if (!classroom)
+    return <main className="detail-state">No tienes acceso a esta aula.</main>;
+  return (
+    <main className="detail-page">
+      <header className="detail-header">
+        <Link href="/aulas">
+          <ArrowLeft />
+          Mis aulas
+        </Link>
+        <Link className="detail-brand" href="/">
+          <GraduationCap />
+          Aula<b>Nova</b>
+        </Link>
+        <button>
+          <Bell />
+        </button>
+      </header>
+      <section
+        className="class-hero"
+        style={{
+          background: `linear-gradient(130deg,${classroom.color},${classroom.color}bb)`,
+        }}
+      >
+        <div>
+          <small>
+            {classroom.status === "ACTIVE"
+              ? "AULA PUBLICADA"
+              : "AULA EN BORRADOR"}
+          </small>
+          <h1>{classroom.title}</h1>
+          <p>{classroom.description || "Espacio de aprendizaje"}</p>
+          <span>
+            Docente: {classroom.teacher.name} · {classroom.enrollments.length}{" "}
+            estudiantes
+          </span>
+        </div>
+        {canEdit && (
+          <div className="hero-code">
+            <small>CÓDIGO DE INVITACIÓN</small>
+            <b>{classroom.inviteCode}</b>
+          </div>
+        )}
+      </section>
+      <nav className="detail-tabs">
+        <button
+          className={tab === "content" ? "active" : ""}
+          onClick={() => setTab("content")}
+        >
+          <Layers3 />
+          Contenido
+        </button>
+        <button
+          className={tab === "tasks" ? "active" : ""}
+          onClick={() => setTab("tasks")}
+        >
+          <ClipboardList />
+          Actividades <b>{activities.length}</b>
+        </button>
+        <button
+          className={tab === "announcements" ? "active" : ""}
+          onClick={() => setTab("announcements")}
+        >
+          <Megaphone />
+          Anuncios
+        </button>
+        <button
+          className={tab === "people" ? "active" : ""}
+          onClick={() => setTab("people")}
+        >
+          <Users />
+          Participantes
+        </button>
+      </nav>
+      <div className="detail-body">
+        {tab === "content" && (
+          <section>
+            <div className="detail-title">
+              <div>
+                <h2>Contenido del aula</h2>
+                <p>Módulos, lecciones y recursos educativos.</p>
+              </div>
+              {canEdit && (
+                <button onClick={() => open("module")}>
+                  <Plus />
+                  Nuevo módulo
+                </button>
+              )}
+            </div>
+            <div className="modules">
+              {classroom.modules.map((module, index) => (
+                <article className="module" key={module.id}>
+                  <header>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div>
+                      <small>MÓDULO {index + 1}</small>
+                      <h3>{module.title}</h3>
+                    </div>
+                    {canEdit && (
+                      <button onClick={() => open("lesson", module.id)}>
+                        <Plus />
+                        Lección
+                      </button>
+                    )}
+                  </header>
+                  {module.lessons.map((lesson) => (
+                    <div className="lesson" key={lesson.id}>
+                      <div className="lesson-copy">
+                        <BookOpen />
+                        <div>
+                          <h4>{lesson.title}</h4>
+                          <p>
+                            {lesson.content?.text ||
+                              "Sin contenido descriptivo."}
+                          </p>
+                        </div>
+                      </div>
+                      {canEdit && (
+                        <div className="lesson-actions">
+                          <button onClick={() => open("resource", lesson.id)}>
+                            + Recurso
+                          </button>
+                          <button onClick={() => open("activity", lesson.id)}>
+                            + Actividad
+                          </button>
+                        </div>
+                      )}
+                      {lesson.resources.map((resource) => (
+                        <a
+                          className="resource"
+                          key={resource.id}
+                          href={resource.url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <FileText />
+                          <span>
+                            <b>{resource.title}</b>
+                            <small>{resource.type}</small>
+                          </span>
+                          <ExternalLink />
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </article>
+              ))}
+              {!classroom.modules.length && (
+                <Empty
+                  text={
+                    canEdit
+                      ? "Crea el primer módulo para organizar tus lecciones."
+                      : "El docente aún no ha publicado contenido."
+                  }
+                />
+              )}
+            </div>
+          </section>
+        )}
+        {tab === "tasks" && (
+          <section>
+            <div className="detail-title">
+              <div>
+                <h2>Actividades y entregas</h2>
+                <p>Tareas, proyectos y calificaciones.</p>
+              </div>
+            </div>
+            <div className="task-list">
+              {activities.map((activity) => (
+                <article className="task" key={activity.id}>
+                  <div className="task-main">
+                    <span>
+                      <ClipboardList />
+                    </span>
+                    <div>
+                      <small>{activity.type}</small>
+                      <h3>{activity.title}</h3>
+                      <p>
+                        {activity.description ||
+                          "Sin instrucciones adicionales."}
+                      </p>
+                      <em>
+                        {activity.dueAt
+                          ? `Entrega: ${new Date(activity.dueAt).toLocaleString("es")}`
+                          : "Sin fecha límite"}{" "}
+                        · {activity.maxScore} puntos
+                      </em>
+                    </div>
+                  </div>
+                  {role === "STUDENT" || preview ? (
+                    <div className="student-submit">
+                      {!preview && activity.submissions[0]?.score != null ? (
+                        <div className="grade">
+                          <CheckCircle2 />
+                          <b>
+                            {activity.submissions[0].score}/{activity.maxScore}
+                          </b>
+                          <span>{activity.submissions[0].feedback}</span>
+                        </div>
+                      ) : (
+                        <button disabled={preview} onClick={() => open("submission", activity.id)}>
+                          <Send />{" "}
+                          {activity.submissions.length
+                            ? "Actualizar entrega"
+                            : "Entregar tarea"}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="submissions">
+                      <b>{activity.submissions.length} entregas</b>
+                      {activity.submissions.map((s) => (
+                        <button key={s.id} onClick={() => open("grade", s.id)}>
+                          {s.student.name} ·{" "}
+                          {s.score == null ? "Calificar" : `${s.score} pts`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </article>
+              ))}
+              {!activities.length && (
+                <Empty text="Todavía no hay actividades en esta aula." />
+              )}
+            </div>
+          </section>
+        )}
+        {tab === "announcements" && (
+          <section>
+            <div className="detail-title">
+              <div>
+                <h2>Anuncios</h2>
+                <p>Novedades importantes para el aula.</p>
+              </div>
+              {canEdit && (
+                <button onClick={() => open("announcement")}>
+                  <Plus />
+                  Nuevo anuncio
+                </button>
+              )}
+            </div>
+            <div className="announcement-list">
+              {classroom.announcements.map((a) => (
+                <article key={a.id}>
+                  <span>
+                    <Megaphone />
+                  </span>
+                  <div>
+                    <small>
+                      {new Date(a.publishedAt).toLocaleString("es")}
+                    </small>
+                    <h3>{a.title}</h3>
+                    <p>{a.body}</p>
+                  </div>
+                </article>
+              ))}
+              {!classroom.announcements.length && (
+                <Empty text="No hay anuncios publicados." />
+              )}
+            </div>
+          </section>
+        )}
+        {tab === "people" && (
+          <section>
+            <div className="detail-title">
+              <div>
+                <h2>Participantes</h2>
+                <p>Docente y estudiantes matriculados.</p>
+              </div>
+            </div>
+            <div className="people-list">
+              <article>
+                <span>DS</span>
+                <div>
+                  <b>{classroom.teacher.name}</b>
+                  <small>{classroom.teacher.email}</small>
+                </div>
+                <em>Docente</em>
+              </article>
+              {classroom.enrollments.map((e) => (
+                <article key={e.id}>
+                  <span>
+                    {e.student.name
+                      .split(" ")
+                      .map((p) => p[0])
+                      .join("")
+                      .slice(0, 2)}
+                  </span>
+                  <div>
+                    <b>{e.student.name}</b>
+                    <small>{e.student.email}</small>
+                  </div>
+                  <em>Alumno · {e.progress}%</em>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+      {action && (
+        <ActionModal
+          action={action}
+          modules={classroom.modules}
+          lessons={lessons}
+          target={target}
+          saving={saving}
+          error={error}
+          close={() => setAction(null)}
+          submit={submit}
+        />
+      )}
+    </main>
+  );
 }
 
-function Empty({text}:{text:string}){return <div className="detail-empty"><BookOpen/><p>{text}</p></div>}
-function ActionModal({action,modules,lessons,target,saving,error,close,submit}:{action:Action;modules:Module[];lessons:Lesson[];target:string;saving:boolean;error:string;close:()=>void;submit:(e:FormEvent<HTMLFormElement>)=>void}){const titles={module:"Nuevo módulo",lesson:"Nueva lección",resource:"Añadir recurso",activity:"Nueva actividad",announcement:"Nuevo anuncio",submission:"Entregar actividad",grade:"Calificar entrega"};return <div className="action-bg" onMouseDown={close}><form className="action-modal" onSubmit={submit} onMouseDown={e=>e.stopPropagation()}><button type="button" className="action-x" onClick={close}><X/></button><h2>{titles[action]}</h2><p>Completa los datos para guardar los cambios.</p>{action==="module"&&<label>Título<input name="title" required minLength={3}/></label>}{action==="lesson"&&<><label>Módulo<select name="moduleId" defaultValue={target}>{modules.map(m=><option key={m.id} value={m.id}>{m.title}</option>)}</select></label><label>Título<input name="title" required/></label><label>Contenido<textarea name="content"/></label></>}{action==="resource"&&<><label>Lección<select name="lessonId" defaultValue={target}>{lessons.map(l=><option key={l.id} value={l.id}>{l.title}</option>)}</select></label><label>Título<input name="title" required/></label><label>Tipo<select name="type"><option value="LINK">Enlace</option><option value="VIDEO">Video</option><option value="DOCUMENT">Documento</option><option value="AUDIO">Audio</option><option value="PRESENTATION">Presentación</option></select></label><label>URL<input name="url" type="url" required/></label></>}{action==="activity"&&<><label>Lección<select name="lessonId" defaultValue={target}>{lessons.map(l=><option key={l.id} value={l.id}>{l.title}</option>)}</select></label><label>Título<input name="title" required/></label><label>Instrucciones<textarea name="description"/></label><div className="modal-split"><label>Tipo<select name="type"><option value="ASSIGNMENT">Tarea</option><option value="PROJECT">Proyecto</option><option value="QUIZ">Cuestionario</option><option value="FORUM">Foro</option></select></label><label>Puntaje<input name="maxScore" type="number" defaultValue="100" min="1"/></label></div><label>Fecha límite<input name="dueAt" type="datetime-local"/></label></>}{action==="announcement"&&<><label>Título<input name="title" required/></label><label>Mensaje<textarea name="body" required/></label></>}{action==="submission"&&<><label>Respuesta<textarea name="content" required placeholder="Escribe tu entrega o explicación…"/></label><label>Enlace al archivo (opcional)<input name="fileUrl" type="url"/></label></>}{action==="grade"&&<><label>Calificación<input name="score" type="number" min="0" required/></label><label>Retroalimentación<textarea name="feedback"/></label></>}{error&&<p className="action-error">{error}</p>}<div className="action-buttons"><button type="button" onClick={close}>Cancelar</button><button disabled={saving}>{saving?<LoaderCircle className="spin"/>:"Guardar"}</button></div></form></div>}
+function Empty({ text }: { text: string }) {
+  return (
+    <div className="detail-empty">
+      <BookOpen />
+      <p>{text}</p>
+    </div>
+  );
+}
+function ActionModal({
+  action,
+  modules,
+  lessons,
+  target,
+  saving,
+  error,
+  close,
+  submit,
+}: {
+  action: Action;
+  modules: Module[];
+  lessons: Lesson[];
+  target: string;
+  saving: boolean;
+  error: string;
+  close: () => void;
+  submit: (e: FormEvent<HTMLFormElement>) => void;
+}) {
+  const titles = {
+    module: "Nuevo módulo",
+    lesson: "Nueva lección",
+    resource: "Añadir recurso",
+    activity: "Nueva actividad",
+    announcement: "Nuevo anuncio",
+    submission: "Entregar actividad",
+    grade: "Calificar entrega",
+  };
+  return (
+    <div className="action-bg" onMouseDown={close}>
+      <form
+        className="action-modal"
+        onSubmit={submit}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <button type="button" className="action-x" onClick={close}>
+          <X />
+        </button>
+        <h2>{titles[action]}</h2>
+        <p>Completa los datos para guardar los cambios.</p>
+        {action === "module" && (
+          <label>
+            Título
+            <input name="title" required minLength={3} />
+          </label>
+        )}
+        {action === "lesson" && (
+          <>
+            <label>
+              Módulo
+              <select name="moduleId" defaultValue={target}>
+                {modules.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Título
+              <input name="title" required />
+            </label>
+            <label>
+              Contenido
+              <textarea name="content" />
+            </label>
+          </>
+        )}
+        {action === "resource" && (
+          <>
+            <label>
+              Lección
+              <select name="lessonId" defaultValue={target}>
+                {lessons.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Título
+              <input name="title" required />
+            </label>
+            <label>
+              Tipo
+              <select name="type">
+                <option value="LINK">Enlace</option>
+                <option value="VIDEO">Video</option>
+                <option value="DOCUMENT">Documento</option>
+                <option value="AUDIO">Audio</option>
+                <option value="PRESENTATION">Presentación</option>
+              </select>
+            </label>
+            <label>
+              URL
+              <input name="url" type="url" required />
+            </label>
+          </>
+        )}
+        {action === "activity" && (
+          <>
+            <label>
+              Lección
+              <select name="lessonId" defaultValue={target}>
+                {lessons.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Título
+              <input name="title" required />
+            </label>
+            <label>
+              Instrucciones
+              <textarea name="description" />
+            </label>
+            <div className="modal-split">
+              <label>
+                Tipo
+                <select name="type">
+                  <option value="ASSIGNMENT">Tarea</option>
+                  <option value="PROJECT">Proyecto</option>
+                  <option value="QUIZ">Cuestionario</option>
+                  <option value="FORUM">Foro</option>
+                </select>
+              </label>
+              <label>
+                Puntaje
+                <input
+                  name="maxScore"
+                  type="number"
+                  defaultValue="100"
+                  min="1"
+                />
+              </label>
+            </div>
+            <label>
+              Fecha límite
+              <input name="dueAt" type="datetime-local" />
+            </label>
+          </>
+        )}
+        {action === "announcement" && (
+          <>
+            <label>
+              Título
+              <input name="title" required />
+            </label>
+            <label>
+              Mensaje
+              <textarea name="body" required />
+            </label>
+          </>
+        )}
+        {action === "submission" && (
+          <>
+            <label>
+              Respuesta
+              <textarea
+                name="content"
+                required
+                placeholder="Escribe tu entrega o explicación…"
+              />
+            </label>
+            <label>
+              Enlace al archivo (opcional)
+              <input name="fileUrl" type="url" />
+            </label>
+          </>
+        )}
+        {action === "grade" && (
+          <>
+            <label>
+              Calificación
+              <input name="score" type="number" min="0" required />
+            </label>
+            <label>
+              Retroalimentación
+              <textarea name="feedback" />
+            </label>
+          </>
+        )}
+        {error && <p className="action-error">{error}</p>}
+        <div className="action-buttons">
+          <button type="button" onClick={close}>
+            Cancelar
+          </button>
+          <button disabled={saving}>
+            {saving ? <LoaderCircle className="spin" /> : "Guardar"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
