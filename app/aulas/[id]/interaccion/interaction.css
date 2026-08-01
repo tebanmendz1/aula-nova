@@ -1,1 +1,275 @@
-.interaction-page{min-height:100vh;background:#f8f7fb;color:#272530}.interaction-page>header{height:66px;background:#fff;border-bottom:1px solid #e9e6ee;display:flex;justify-content:space-between;align-items:center;padding:0 5vw}.interaction-page header a,.interaction-page header span{display:flex;align-items:center;gap:7px;text-decoration:none;color:#6d6978;font-size:10px}.interaction-page header span{font:800 15px 'Manrope';color:#282630}.interaction-page header span b{color:#6c5ce7;margin-left:-6px}.interaction-body{width:min(850px,92vw);margin:auto;padding:38px 0 70px}.interaction-title small{font-size:8px;color:#6c5ce7;font-weight:800;letter-spacing:1px}.interaction-title h1{font:800 27px 'Manrope';margin:7px 0 3px}.interaction-title p{font-size:10px;color:#888492;margin:0 0 25px}.interaction-card{background:#fff;border:1px solid #e7e4eb;border-radius:15px;padding:18px;margin-bottom:15px}.interaction-card-title{display:flex;gap:11px;align-items:start}.interaction-card-title>span{width:40px;height:40px;border-radius:11px;background:#f0edff;color:#6554d6;display:grid;place-items:center}.interaction-card-title>div{flex:1}.interaction-card-title small{font-size:7px;color:#6c5ce7;font-weight:800}.interaction-card-title h2{font-size:14px;margin:3px 0}.interaction-card-title p{font-size:9px;color:#85818e;margin:0}.interaction-card-title button,.quiz-form>button,.forum form button,.question-form button{border:0;background:#6c5ce7;color:#fff;border-radius:8px;padding:8px 10px;font-size:8px;display:flex;align-items:center;gap:4px}.quiz-form{margin-top:17px;border-top:1px solid #eeebf1;padding-top:10px}.quiz-form fieldset{border:0;padding:8px 0}.quiz-form legend{font-size:10px;font-weight:700;margin-bottom:8px}.quiz-form legend small{color:#8e8996;margin-left:5px}.quiz-form label{display:block;background:#f8f7fb;border-radius:8px;padding:8px;margin:5px 0;font-size:9px}.quiz-form input{accent-color:#6c5ce7;margin-right:7px}.quiz-result{display:flex;align-items:center;gap:6px;background:#eaf8f0;color:#2d935b;border-radius:9px;padding:10px;font-size:9px}.attempts{display:grid;gap:6px;margin-top:15px}.attempts>b{font-size:9px;color:#777}.attempts span{display:flex;justify-content:space-between;background:#f8f7fa;border-radius:7px;padding:8px;font-size:9px}.forum{margin-top:15px}.posts>div{display:flex;gap:9px;padding:10px 0;border-top:1px solid #efecf2}.posts>div>span{width:32px;height:32px;border-radius:9px;background:#ede9fc;color:#6251d2;display:grid;place-items:center;font-size:8px;font-weight:800}.posts b,.posts small{display:block}.posts b{font-size:9px}.posts small{font-size:7px;color:#999}.posts p{font-size:9px;line-height:1.5;margin:5px 0}.forum form{display:flex;gap:7px}.forum textarea{flex:1;border:1px solid #dedbe5;border-radius:9px;padding:9px;font-size:9px;resize:none;height:55px}.question-form{margin-top:15px;padding:13px;background:#f7f5fb;border-radius:10px;display:grid;grid-template-columns:2fr 2fr 1.5fr .5fr auto;gap:6px}.question-form h3{grid-column:1/-1;font-size:10px;margin:0 0 4px}.question-form input{border:1px solid #dedbe5;border-radius:7px;padding:8px;font-size:8px}.interaction-empty,.interaction-state{min-height:230px;display:grid;place-content:center;color:#888492;font-size:10px}.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:700px){.question-form{grid-template-columns:1fr}.forum form{flex-direction:column}.interaction-card-title>button{font-size:0}}
+.interaction-page {
+  min-height: 100vh;
+  background: #f8f7fb;
+  color: #272530;
+}
+.interaction-page > header {
+  height: 66px;
+  background: #fff;
+  border-bottom: 1px solid #e9e6ee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5vw;
+}
+.interaction-page header a,
+.interaction-page header span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: #6d6978;
+  font-size: 10px;
+}
+.interaction-page header span {
+  font: 800 15px "Manrope";
+  color: #282630;
+}
+.interaction-page header span b {
+  color: #6c5ce7;
+  margin-left: -6px;
+}
+.interaction-body {
+  width: min(850px, 92vw);
+  margin: auto;
+  padding: 38px 0 70px;
+}
+.interaction-title small {
+  font-size: 8px;
+  color: #6c5ce7;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+.interaction-title h1 {
+  font: 800 27px "Manrope";
+  margin: 7px 0 3px;
+}
+.interaction-title p {
+  font-size: 10px;
+  color: #888492;
+  margin: 0 0 25px;
+}
+.interaction-card {
+  background: #fff;
+  border: 1px solid #e7e4eb;
+  border-radius: 15px;
+  padding: 18px;
+  margin-bottom: 15px;
+}
+.interaction-card-title {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+}
+.interaction-card-title > span {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #f0edff;
+  color: #6554d6;
+  display: grid;
+  place-items: center;
+}
+.interaction-card-title > div {
+  flex: 1;
+}
+.interaction-card-title small {
+  font-size: 7px;
+  color: #6c5ce7;
+  font-weight: 800;
+}
+.interaction-card-title h2 {
+  font-size: 14px;
+  margin: 3px 0;
+}
+.interaction-card-title p {
+  font-size: 9px;
+  color: #85818e;
+  margin: 0;
+}
+.interaction-card-title button,
+.quiz-form > button,
+.forum form button,
+.question-form button {
+  border: 0;
+  background: #6c5ce7;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.quiz-form {
+  margin-top: 17px;
+  border-top: 1px solid #eeebf1;
+  padding-top: 10px;
+}
+.quiz-form fieldset {
+  border: 0;
+  padding: 8px 0;
+}
+.quiz-form legend {
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.quiz-form legend small {
+  color: #8e8996;
+  margin-left: 5px;
+}
+.quiz-form label {
+  display: block;
+  background: #f8f7fb;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 5px 0;
+  font-size: 9px;
+}
+.quiz-form input {
+  accent-color: #6c5ce7;
+  margin-right: 7px;
+}
+.quiz-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #eaf8f0;
+  color: #2d935b;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 9px;
+}
+.attempts {
+  display: grid;
+  gap: 6px;
+  margin-top: 15px;
+}
+.attempts > b {
+  font-size: 9px;
+  color: #777;
+}
+.attempts span {
+  display: flex;
+  justify-content: space-between;
+  background: #f8f7fa;
+  border-radius: 7px;
+  padding: 8px;
+  font-size: 9px;
+}
+.forum {
+  margin-top: 15px;
+}
+.posts > div {
+  display: flex;
+  gap: 9px;
+  padding: 10px 0;
+  border-top: 1px solid #efecf2;
+}
+.posts > div > span {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #ede9fc;
+  color: #6251d2;
+  display: grid;
+  place-items: center;
+  font-size: 8px;
+  font-weight: 800;
+}
+.posts b,
+.posts small {
+  display: block;
+}
+.posts b {
+  font-size: 9px;
+}
+.posts small {
+  font-size: 7px;
+  color: #999;
+}
+.posts p {
+  font-size: 9px;
+  line-height: 1.5;
+  margin: 5px 0;
+}
+.forum form {
+  display: flex;
+  gap: 7px;
+}
+.forum textarea {
+  flex: 1;
+  border: 1px solid #dedbe5;
+  border-radius: 9px;
+  padding: 9px;
+  font-size: 9px;
+  resize: none;
+  height: 55px;
+}
+.question-form {
+  margin-top: 15px;
+  padding: 13px;
+  background: #f7f5fb;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 0.5fr auto;
+  gap: 6px;
+}
+.question-form h3 {
+  grid-column: 1/-1;
+  font-size: 10px;
+  margin: 0 0 4px;
+}
+.question-form input {
+  border: 1px solid #dedbe5;
+  border-radius: 7px;
+  padding: 8px;
+  font-size: 8px;
+}
+.interaction-empty,
+.interaction-state {
+  min-height: 230px;
+  display: grid;
+  place-content: center;
+  color: #888492;
+  font-size: 10px;
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 700px) {
+  .question-form {
+    grid-template-columns: 1fr;
+  }
+  .forum form {
+    flex-direction: column;
+  }
+  .interaction-card-title > button {
+    font-size: 0;
+  }
+}
+.quiz-short-answer {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dedbe5;
+  border-radius: 8px;
+  padding: 11px !important;
+  font-size: 10px !important;
+}
+.interaction-card-title > a {
+  border: 0;
+  background: #6c5ce7;
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 9px;
+  text-decoration: none;
+  font-weight: 700;
+}

@@ -1,0 +1,1 @@
+ALTER TABLE "QuizQuestion" ADD COLUMN "questionType" TEXT NOT NULL DEFAULT 'SINGLE_CHOICE', ADD COLUMN "explanation" TEXT;

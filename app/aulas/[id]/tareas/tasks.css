@@ -1,2 +1,509 @@
-.tasks-page{min-height:100vh;background:#f7f6fa;color:#292632}.tasks-header{height:64px;background:#fff;border-bottom:1px solid #e8e5ed;display:flex;align-items:center;justify-content:space-between;padding:0 5vw}.tasks-header a,.tasks-header span{display:flex;align-items:center;gap:7px;text-decoration:none;color:#5e5969;font-size:11px}.tasks-header span{font:800 16px Manrope;color:#292632}.tasks-header span b{color:#6957dd}.tasks-wrap{width:min(1180px,92vw);margin:auto;padding:34px 0 70px}.tasks-heading{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:25px}.tasks-heading>div>small{color:#6b59dc;font-weight:800;letter-spacing:1px;font-size:8px}.tasks-heading h1{font:800 27px Manrope;margin:6px 0}.tasks-heading p{font-size:11px;color:#817c89}.tasks-summary{display:flex;gap:9px}.tasks-summary article{background:#fff;border:1px solid #e5e1eb;border-radius:12px;padding:11px 15px;display:grid;grid-template-columns:auto auto;gap:1px 8px}.tasks-summary svg{grid-row:1/3;width:19px;color:#6957dd}.tasks-summary b{font-size:15px}.tasks-summary span{font-size:8px;color:#8d8795}.student-task-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.student-task-card,.teacher-activities details{background:#fff;border:1px solid #e5e1e9;border-radius:15px;padding:18px}.task-card-top{display:flex;justify-content:space-between}.task-card-top small{font-size:8px;color:#8d8795}.status{display:inline-block;border-radius:20px;padding:5px 8px;font-size:8px;font-weight:800;font-style:normal}.status.submitted,.status.pending{background:#fff4dc;color:#a36b00}.status.graded{background:#e8f8ef;color:#237b4c}.status.missing,.status.overdue{background:#ffeded;color:#a94444}.student-task-card h2{font:700 16px Manrope;margin:13px 0 6px}.student-task-card>p{font-size:10px;color:#777281;min-height:30px}.student-task-card dl{background:#f8f7fa;border-radius:10px;padding:4px 11px}.student-task-card dl div{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e9e6ec}.student-task-card dl div:last-child{border:0}.student-task-card dt,.student-task-card dd{font-size:8px;margin:0}.student-task-card dd{font-weight:700}.student-task-card>button,.task-modal form>button{border:0;background:#6957dd;color:#fff;border-radius:9px;padding:10px 13px;font-size:9px;font-weight:700;display:flex;align-items:center;gap:6px}.feedback{border-left:3px solid #62b886;padding:6px 10px;margin:10px 0}.feedback b,.feedback p{font-size:9px;margin:0 0 3px}.teacher-activities{display:grid;gap:14px}.teacher-activities details{padding:0;overflow:hidden}.teacher-activities summary{list-style:none;padding:17px 19px;display:flex;justify-content:space-between;align-items:center;background:#fbfafc}.teacher-activities summary small{font-size:8px;color:#6b59dc}.teacher-activities summary h2{font:700 15px Manrope;margin:4px 0}.teacher-activities summary span{font-size:8px;color:#888390}.activity-counts{display:flex;gap:8px}.activity-counts b{background:#f1eef9;border-radius:9px;padding:8px 11px;font-size:13px;text-align:center}.activity-counts small{display:block;color:#827b8e;margin-top:2px}.table-tools{display:flex;justify-content:space-between;padding:12px 17px;border-top:1px solid #e9e5ed}.table-tools label{display:flex;align-items:center;gap:6px;border:1px solid #ded9e4;border-radius:8px;padding:0 8px}.table-tools input,.table-tools select,.table-tools select{border:0;outline:0;padding:8px;background:#fff;font-size:9px}.table-tools select{border:1px solid #ded9e4;border-radius:8px}.submission-table{overflow:auto}.table-row{min-width:800px;display:grid;grid-template-columns:1.5fr 1fr 1fr .7fr .7fr;gap:12px;align-items:center;padding:11px 18px;border-top:1px solid #efecf1;font-size:9px}.table-row span b,.table-row span small{display:block}.table-row span small{color:#918b98;margin-top:3px}.table-head{background:#f7f5f9;color:#77717f;font-weight:800;font-size:8px}.table-row button{border:1px solid #d7d0f4;background:#f3f0ff;color:#6150ce;border-radius:7px;padding:7px 9px;font-size:8px;font-weight:700}.table-row em{font-size:8px;color:#aaa;font-style:normal}.task-modal-bg{position:fixed;inset:0;z-index:70;background:#19162399;display:grid;place-items:center;padding:20px}.task-modal{position:relative;background:#fff;border-radius:17px;width:min(600px,96vw);max-height:92vh;overflow:auto;padding:25px}.modal-close{position:absolute;right:16px;top:16px;border:0;background:transparent;color:#8c8693}.task-modal>small{font-size:8px;color:#6b59dc;font-weight:800}.task-modal h2{font:700 20px Manrope;margin:5px 35px 6px 0}.task-modal>p{font-size:10px;color:#746f7d}.task-modal label{display:block;font-size:9px;font-weight:700;margin:13px 0}.task-modal input,.task-modal textarea{display:block;width:100%;border:1px solid #ddd8e3;border-radius:9px;padding:10px;margin-top:6px}.task-modal textarea{min-height:95px;resize:vertical}.task-modal form>a,.submitted-work a{display:flex;align-items:center;gap:5px;color:#6251ce;font-size:9px;margin:10px 0}.submitted-work{background:#f7f5fa;border-radius:10px;padding:12px}.submitted-work h3{font-size:11px;margin:0}.submitted-work p{font-size:9px;white-space:pre-wrap}.modal-grade{background:#eaf8f0;padding:12px;border-radius:10px;margin:12px 0}.modal-grade b{font-size:19px;color:#268153}.modal-error{background:#ffeded;color:#a94444;padding:9px;border-radius:8px;font-size:9px}.tasks-empty,.tasks-state{min-height:240px;display:grid;place-content:center;color:#8a8491}.tasks-state{min-height:100vh}.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:760px){.tasks-heading{display:block}.tasks-summary{margin-top:16px;overflow:auto}.student-task-grid{grid-template-columns:1fr}.activity-counts{display:none}}
-.student-task-card>a,.table-row a{display:inline-flex;text-decoration:none;border:1px solid #d7d0f4;background:#f3f0ff;color:#6150ce;border-radius:8px;padding:8px 11px;font-size:9px;font-weight:700}.student-task-card>a{margin-top:10px;background:#6957dd;color:#fff}.status.borrador{background:#fff4dc;color:#966100}.status.reabierta{background:#eaf1ff;color:#3766a7}.status.por-calificar{background:#fff4dc;color:#966100}.status.calificada{background:#e8f8ef;color:#237b4c}.status.sin-entrega,.status.atrasada{background:#ffeded;color:#a94444}
+.tasks-page {
+  min-height: 100vh;
+  background: #f7f6fa;
+  color: #292632;
+}
+.tasks-header {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid #e8e5ed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5vw;
+}
+.tasks-header a,
+.tasks-header span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: #5e5969;
+  font-size: 11px;
+}
+.tasks-header span {
+  font: 800 16px Manrope;
+  color: #292632;
+}
+.tasks-header span b {
+  color: #6957dd;
+}
+.tasks-wrap {
+  width: min(1180px, 92vw);
+  margin: auto;
+  padding: 34px 0 70px;
+}
+.tasks-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 25px;
+}
+.tasks-heading > div > small {
+  color: #6b59dc;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 8px;
+}
+.tasks-heading h1 {
+  font: 800 27px Manrope;
+  margin: 6px 0;
+}
+.tasks-heading p {
+  font-size: 11px;
+  color: #817c89;
+}
+.tasks-summary {
+  display: flex;
+  gap: 9px;
+}
+.tasks-summary article {
+  background: #fff;
+  border: 1px solid #e5e1eb;
+  border-radius: 12px;
+  padding: 11px 15px;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 8px;
+}
+.tasks-summary svg {
+  grid-row: 1/3;
+  width: 19px;
+  color: #6957dd;
+}
+.tasks-summary b {
+  font-size: 15px;
+}
+.tasks-summary span {
+  font-size: 8px;
+  color: #8d8795;
+}
+.student-task-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.student-task-card,
+.teacher-activities details {
+  background: #fff;
+  border: 1px solid #e5e1e9;
+  border-radius: 15px;
+  padding: 18px;
+}
+.task-card-top {
+  display: flex;
+  justify-content: space-between;
+}
+.task-card-top small {
+  font-size: 8px;
+  color: #8d8795;
+}
+.status {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 5px 8px;
+  font-size: 8px;
+  font-weight: 800;
+  font-style: normal;
+}
+.status.submitted,
+.status.pending {
+  background: #fff4dc;
+  color: #a36b00;
+}
+.status.graded {
+  background: #e8f8ef;
+  color: #237b4c;
+}
+.status.missing,
+.status.overdue {
+  background: #ffeded;
+  color: #a94444;
+}
+.student-task-card h2 {
+  font: 700 16px Manrope;
+  margin: 13px 0 6px;
+}
+.student-task-card > p {
+  font-size: 10px;
+  color: #777281;
+  min-height: 30px;
+}
+.student-task-card dl {
+  background: #f8f7fa;
+  border-radius: 10px;
+  padding: 4px 11px;
+}
+.student-task-card dl div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9e6ec;
+}
+.student-task-card dl div:last-child {
+  border: 0;
+}
+.student-task-card dt,
+.student-task-card dd {
+  font-size: 8px;
+  margin: 0;
+}
+.student-task-card dd {
+  font-weight: 700;
+}
+.student-task-card > button,
+.task-modal form > button {
+  border: 0;
+  background: #6957dd;
+  color: #fff;
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feedback {
+  border-left: 3px solid #62b886;
+  padding: 6px 10px;
+  margin: 10px 0;
+}
+.feedback b,
+.feedback p {
+  font-size: 9px;
+  margin: 0 0 3px;
+}
+.teacher-activities {
+  display: grid;
+  gap: 14px;
+}
+.teacher-activities details {
+  padding: 0;
+  overflow: hidden;
+}
+.teacher-activities summary {
+  list-style: none;
+  padding: 17px 19px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fbfafc;
+}
+.teacher-activities summary small {
+  font-size: 8px;
+  color: #6b59dc;
+}
+.teacher-activities summary h2 {
+  font: 700 15px Manrope;
+  margin: 4px 0;
+}
+.teacher-activities summary span {
+  font-size: 8px;
+  color: #888390;
+}
+.activity-counts {
+  display: flex;
+  gap: 8px;
+}
+.activity-counts b {
+  background: #f1eef9;
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-size: 13px;
+  text-align: center;
+}
+.activity-counts small {
+  display: block;
+  color: #827b8e;
+  margin-top: 2px;
+}
+.table-tools {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 17px;
+  border-top: 1px solid #e9e5ed;
+}
+.table-tools label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #ded9e4;
+  border-radius: 8px;
+  padding: 0 8px;
+}
+.table-tools input,
+.table-tools select,
+.table-tools select {
+  border: 0;
+  outline: 0;
+  padding: 8px;
+  background: #fff;
+  font-size: 9px;
+}
+.table-tools select {
+  border: 1px solid #ded9e4;
+  border-radius: 8px;
+}
+.submission-table {
+  overflow: auto;
+}
+.table-row {
+  min-width: 800px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.7fr 0.7fr;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 18px;
+  border-top: 1px solid #efecf1;
+  font-size: 9px;
+}
+.table-row span b,
+.table-row span small {
+  display: block;
+}
+.table-row span small {
+  color: #918b98;
+  margin-top: 3px;
+}
+.table-head {
+  background: #f7f5f9;
+  color: #77717f;
+  font-weight: 800;
+  font-size: 8px;
+}
+.table-row button {
+  border: 1px solid #d7d0f4;
+  background: #f3f0ff;
+  color: #6150ce;
+  border-radius: 7px;
+  padding: 7px 9px;
+  font-size: 8px;
+  font-weight: 700;
+}
+.table-row em {
+  font-size: 8px;
+  color: #aaa;
+  font-style: normal;
+}
+.task-modal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: #19162399;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.task-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 17px;
+  width: min(600px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 25px;
+}
+.modal-close {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border: 0;
+  background: transparent;
+  color: #8c8693;
+}
+.task-modal > small {
+  font-size: 8px;
+  color: #6b59dc;
+  font-weight: 800;
+}
+.task-modal h2 {
+  font: 700 20px Manrope;
+  margin: 5px 35px 6px 0;
+}
+.task-modal > p {
+  font-size: 10px;
+  color: #746f7d;
+}
+.task-modal label {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  margin: 13px 0;
+}
+.task-modal input,
+.task-modal textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #ddd8e3;
+  border-radius: 9px;
+  padding: 10px;
+  margin-top: 6px;
+}
+.task-modal textarea {
+  min-height: 95px;
+  resize: vertical;
+}
+.task-modal form > a,
+.submitted-work a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6251ce;
+  font-size: 9px;
+  margin: 10px 0;
+}
+.submitted-work {
+  background: #f7f5fa;
+  border-radius: 10px;
+  padding: 12px;
+}
+.submitted-work h3 {
+  font-size: 11px;
+  margin: 0;
+}
+.submitted-work p {
+  font-size: 9px;
+  white-space: pre-wrap;
+}
+.modal-grade {
+  background: #eaf8f0;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 12px 0;
+}
+.modal-grade b {
+  font-size: 19px;
+  color: #268153;
+}
+.modal-error {
+  background: #ffeded;
+  color: #a94444;
+  padding: 9px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+.tasks-empty,
+.tasks-state {
+  min-height: 240px;
+  display: grid;
+  place-content: center;
+  color: #8a8491;
+}
+.tasks-state {
+  min-height: 100vh;
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 760px) {
+  .tasks-heading {
+    display: block;
+  }
+  .tasks-summary {
+    margin-top: 16px;
+    overflow: auto;
+  }
+  .student-task-grid {
+    grid-template-columns: 1fr;
+  }
+  .activity-counts {
+    display: none;
+  }
+}
+.student-task-card > a,
+.table-row a {
+  display: inline-flex;
+  text-decoration: none;
+  border: 1px solid #d7d0f4;
+  background: #f3f0ff;
+  color: #6150ce;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 9px;
+  font-weight: 700;
+}
+.student-task-card > a {
+  margin-top: 10px;
+  background: #6957dd;
+  color: #fff;
+}
+.status.borrador {
+  background: #fff4dc;
+  color: #966100;
+}
+.status.reabierta {
+  background: #eaf1ff;
+  color: #3766a7;
+}
+.status.por-calificar {
+  background: #fff4dc;
+  color: #966100;
+}
+.status.calificada {
+  background: #e8f8ef;
+  color: #237b4c;
+}
+.status.sin-entrega,
+.status.atrasada {
+  background: #ffeded;
+  color: #a94444;
+}
+.activity-curriculum,
+.theme-activities {
+  display: grid;
+  gap: 18px;
+}
+.activity-unit {
+  border: 1px solid #ddd7f2;
+  border-radius: 16px;
+  background: #fff;
+  padding: 18px;
+}
+.activity-unit > header {
+  margin-bottom: 12px;
+}
+.activity-unit > header small,
+.activity-theme > summary span {
+  color: #6c5ce7;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.activity-unit > header h2 {
+  margin: 3px 0 0;
+  font-size: 20px;
+}
+.activity-theme {
+  border: 1px solid #e9e5f5;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 10px;
+}
+.activity-theme > summary {
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.activity-theme > summary b {
+  font-size: 15px;
+}
+.activity-theme > summary i {
+  color: #777181;
+  font-size: 10px;
+  font-style: normal;
+}
+.activity-theme > .student-task-grid,
+.activity-theme > .theme-activities {
+  margin-top: 15px;
+}
+.teacher-theme > .theme-activities > details {
+  margin: 0;
+}

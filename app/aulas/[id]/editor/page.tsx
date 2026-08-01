@@ -63,7 +63,12 @@ type Dialog = {
   elementType?: string;
   target?: Target;
 };
-type StructureEdit = { kind: string; id: string; title: string; description: string };
+type StructureEdit = {
+  kind: string;
+  id: string;
+  title: string;
+  description: string;
+};
 
 const groups = [
   {
@@ -266,7 +271,7 @@ export default function CourseEditor({
       await load();
     } else setError(data.error);
     setBusy(false);
-    return response.ok;
+    return response.ok ? data : null;
   }
   function editStructure(
     kind: string,
@@ -277,18 +282,25 @@ export default function CourseEditor({
       content?: { text?: string } | null;
     },
   ) {
-    setStructureEdit({kind,id:item.id,title:item.title,description:item.description||item.content?.text||""});
-  }
-  async function saveStructure(event:FormEvent<HTMLFormElement>){
-    event.preventDefault();if(!structureEdit)return;const form=new FormData(event.currentTarget);
-    const ok=await request({
-      action: "update_structure",
-      kind:structureEdit.kind,
-      elementId:structureEdit.id,
-      title:form.get("title"),
-      description:form.get("description"),
+    setStructureEdit({
+      kind,
+      id: item.id,
+      title: item.title,
+      description: item.description || item.content?.text || "",
     });
-    if(ok)setStructureEdit(null);
+  }
+  async function saveStructure(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!structureEdit) return;
+    const form = new FormData(event.currentTarget);
+    const ok = await request({
+      action: "update_structure",
+      kind: structureEdit.kind,
+      elementId: structureEdit.id,
+      title: form.get("title"),
+      description: form.get("description"),
+    });
+    if (ok) setStructureEdit(null);
   }
   function startPalette(event: DragEvent, type: string) {
     event.dataTransfer.setData(
@@ -391,7 +403,7 @@ export default function CourseEditor({
       url = data.url;
       size = data.size;
     }
-    await request({
+    const created = await request({
       action: "create_element",
       elementType: dialog.elementType,
       lessonId: dialog.target?.lessonId,
@@ -403,9 +415,16 @@ export default function CourseEditor({
       dueAt: form.get("dueAt"),
       maxScore: form.get("maxScore"),
     });
+    if (dialog.elementType === "QUIZ" && created?.activityId)
+      window.location.href = `/aulas/${id}/cuestionarios/${created.activityId}`;
   }
   async function remove(kind: string, elementId: string, title: string) {
-    if (await confirmDialog(`¿Eliminar “${title}”? Esta acción no se puede deshacer.`,"Eliminar elemento"))
+    if (
+      await confirmDialog(
+        `¿Eliminar “${title}”? Esta acción no se puede deshacer.`,
+        "Eliminar elemento",
+      )
+    )
       await request({ action: "delete_element", kind, elementId });
   }
   function DropZone({
@@ -471,6 +490,16 @@ export default function CourseEditor({
         <div>
           <b>{item.title}</b>
           <small>{labels[item.type] || item.type}</small>
+          {kind === "activity" && item.type === "QUIZ" && (
+            <Link
+              className="quiz-config-link"
+              href={`/aulas/${id}/cuestionarios/${item.id}`}
+              draggable={false}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              Configurar preguntas
+            </Link>
+          )}
         </div>
         <button
           title="Eliminar"
@@ -513,7 +542,16 @@ export default function CourseEditor({
               temas · {itemCount} elementos
             </p>
           </div>
-          <div className="editor-heading-actions"><Link href={`/aulas/${id}?preview=student`} target="_blank"><Eye/>Vista previa como alumno</Link><button onClick={() => setDialog({ mode: "division" })}><Plus/>Nueva unidad</button></div>
+          <div className="editor-heading-actions">
+            <Link href={`/aulas/${id}?preview=student`} target="_blank">
+              <Eye />
+              Vista previa como alumno
+            </Link>
+            <button onClick={() => setDialog({ mode: "division" })}>
+              <Plus />
+              Nueva unidad
+            </button>
+          </div>
         </section>
         {error && (
           <div className="editor-error">
@@ -703,7 +741,57 @@ export default function CourseEditor({
           </aside>
         </div>
       </div>
-      {structureEdit && <div className="editor-modal" onMouseDown={()=>setStructureEdit(null)}><form onSubmit={saveStructure} onMouseDown={event=>event.stopPropagation()}><small>EDITAR CONTENIDO</small><h2>Editar {structureEdit.kind==="module"?"unidad":structureEdit.kind==="lesson"?"tema":"subtema"}</h2><label>Título<input name="title" defaultValue={structureEdit.title} required minLength={3} autoFocus/></label>{structureEdit.kind!=="module"&&<label>Contenido<textarea className="structure-content" name="description" defaultValue={structureEdit.description} placeholder="Escribe el contenido. Se conservarán los saltos de línea."/></label>}{error&&<p className="modal-error">{error}</p>}<div className="modal-actions"><button type="button" onClick={()=>setStructureEdit(null)}>Cancelar</button><button disabled={busy}>{busy?<Upload className="spin"/>:"Guardar cambios"}</button></div></form></div>}
+      {structureEdit && (
+        <div
+          className="editor-modal"
+          onMouseDown={() => setStructureEdit(null)}
+        >
+          <form
+            onSubmit={saveStructure}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <small>EDITAR CONTENIDO</small>
+            <h2>
+              Editar{" "}
+              {structureEdit.kind === "module"
+                ? "unidad"
+                : structureEdit.kind === "lesson"
+                  ? "tema"
+                  : "subtema"}
+            </h2>
+            <label>
+              Título
+              <input
+                name="title"
+                defaultValue={structureEdit.title}
+                required
+                minLength={3}
+                autoFocus
+              />
+            </label>
+            {structureEdit.kind !== "module" && (
+              <label>
+                Contenido
+                <textarea
+                  className="structure-content"
+                  name="description"
+                  defaultValue={structureEdit.description}
+                  placeholder="Escribe el contenido. Se conservarán los saltos de línea."
+                />
+              </label>
+            )}
+            {error && <p className="modal-error">{error}</p>}
+            <div className="modal-actions">
+              <button type="button" onClick={() => setStructureEdit(null)}>
+                Cancelar
+              </button>
+              <button disabled={busy}>
+                {busy ? <Upload className="spin" /> : "Guardar cambios"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {dialog && (
         <div className="editor-modal" onMouseDown={() => setDialog(null)}>
           <form
