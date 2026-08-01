@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import "./classroom-detail.css";
 import "./student-preview.css";
+import "./content-format.css";
+import { normalizePlainContent } from "@/lib/text-format";
 
 type Submission = {
   id: string;
@@ -262,7 +264,7 @@ export default function ClassroomDetail({
           description = document.createElement("p");
         number.textContent = String(position + 1);
         heading.textContent = topic.title;
-        description.textContent = topic.description || "";
+        description.textContent = normalizePlainContent(topic.description);
         copy.append(heading, description);
         item.append(number, copy);
         group.appendChild(item);
@@ -614,7 +616,7 @@ export default function ClassroomDetail({
                         <div>
                           <h4>{lesson.title}</h4>
                           <p>
-                            {lesson.content?.text ||
+                              {normalizePlainContent(lesson.content?.text) ||
                               "Sin contenido descriptivo."}
                           </p>
                         </div>

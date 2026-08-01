@@ -37,6 +37,7 @@ import {
 import "./editor.css";
 import "./structure-modal.css";
 import { useAppDialogs } from "@/app/components/AppDialogs";
+import { normalizePlainContent } from "@/lib/text-format";
 
 type Item = { id: string; title: string; type: string };
 type Topic = {
@@ -153,15 +154,6 @@ const labels: Record<string, string> = {
   DATABASE: "Base de datos",
 };
 
-const displayText = (value?: string | null) =>
-  (value || "")
-    .replace(/\\n/g, "\n")
-    .replace(/\r\n?/g, "\n")
-    .replace(/[\u2028\u2029]/g, "\n")
-    .replace(/[\uF0B7\u25A1]/g, "\n• ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
 export default function CourseEditor({
   params,
 }: {
@@ -196,7 +188,7 @@ export default function CourseEditor({
       ),
     );
     paragraphs.forEach((node) => {
-      node.textContent = displayText(node.textContent);
+      node.textContent = normalizePlainContent(node.textContent);
     });
   }, [modules]);
   useEffect(() => {

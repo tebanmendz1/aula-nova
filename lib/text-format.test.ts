@@ -1,0 +1,2 @@
+import {describe,expect,it} from "vitest";import {normalizePlainContent} from "./text-format";
+describe("normalizePlainContent",()=>{it("convierte viñetas privadas de Word en líneas legibles",()=>{expect(normalizePlainContent("Leer\uF0B7Reproducir\uF0B7Practicar")).toBe("Leer\n• Reproducir\n• Practicar")});it("conserva párrafos y normaliza saltos literales",()=>{expect(normalizePlainContent("Uno\\nDos\r\nTres")).toBe("Uno\nDos\nTres")})});
