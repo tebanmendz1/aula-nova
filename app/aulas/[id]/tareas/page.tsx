@@ -181,78 +181,89 @@ function StudentOverview({
   return (
     <section className="activity-curriculum">
       {grouped(activities).map(([unit, themes]) => (
-        <section className="activity-unit" key={unit}>
-          <header>
-            <small>UNIDAD</small>
-            <h2>{unit}</h2>
-          </header>
-          {Object.entries(themes).map(([theme, themeActivities]) => (
-            <details className="activity-theme" key={theme} open>
-              <summary>
-                <span>TEMA</span>
-                <b>{theme}</b>
-                <i>{themeActivities.length} actividades</i>
-              </summary>
-              <div className="student-task-grid">
-                {themeActivities.map((activity) => {
-                  const submission = activity.submissions[0],
-                    state = label(submission, activity.dueAt);
-                  return (
-                    <article className="student-task-card" key={activity.id}>
-                      <div className="task-card-top">
-                        <i
-                          className={`status ${state.toLowerCase().replaceAll(" ", "-")}`}
-                        >
-                          {state}
-                        </i>
-                        <small>{activity.lesson}</small>
-                      </div>
-                      <h2>{activity.title}</h2>
-                      <p>
-                        {activity.description ||
-                          "Sin instrucciones adicionales."}
-                      </p>
-                      <dl>
-                        <div>
-                          <dt>Fecha límite</dt>
-                          <dd>
-                            {activity.dueAt
-                              ? new Date(activity.dueAt).toLocaleString("es")
-                              : "Sin fecha"}
-                          </dd>
+        <details className="activity-unit student-unit" key={unit}>
+          <summary>
+            <span>
+              <small>UNIDAD</small>
+              <b>{unit}</b>
+            </span>
+            <i>
+              {Object.values(themes).reduce(
+                (total, themeActivities) => total + themeActivities.length,
+                0,
+              )}{" "}
+              actividades
+            </i>
+          </summary>
+          <div className="unit-themes">
+            {Object.entries(themes).map(([theme, themeActivities]) => (
+              <details className="activity-theme" key={theme} open>
+                <summary>
+                  <span>TEMA</span>
+                  <b>{theme}</b>
+                  <i>{themeActivities.length} actividades</i>
+                </summary>
+                <div className="student-task-grid">
+                  {themeActivities.map((activity) => {
+                    const submission = activity.submissions[0],
+                      state = label(submission, activity.dueAt);
+                    return (
+                      <article className="student-task-card" key={activity.id}>
+                        <div className="task-card-top">
+                          <i
+                            className={`status ${state.toLowerCase().replaceAll(" ", "-")}`}
+                          >
+                            {state}
+                          </i>
+                          <small>{activity.lesson}</small>
                         </div>
-                        <div>
-                          <dt>Última entrega</dt>
-                          <dd>
-                            {submission
-                              ? new Date(submission.submittedAt).toLocaleString(
-                                  "es",
-                                )
-                              : "—"}
-                          </dd>
-                        </div>
-                        <div>
-                          <dt>Calificación</dt>
-                          <dd>
-                            {submission?.score != null
-                              ? `${submission.score}/${activity.maxScore}`
-                              : `—/${activity.maxScore}`}
-                          </dd>
-                        </div>
-                      </dl>
-                      <Link href={`/aulas/${id}/tareas/${activity.id}`}>
-                        {submission?.status === "DRAFT" ||
-                        submission?.status === "REOPENED"
-                          ? "Continuar entrega"
-                          : "Abrir tarea"}
-                      </Link>
-                    </article>
-                  );
-                })}
-              </div>
-            </details>
-          ))}
-        </section>
+                        <h2>{activity.title}</h2>
+                        <p>
+                          {activity.description ||
+                            "Sin instrucciones adicionales."}
+                        </p>
+                        <dl>
+                          <div>
+                            <dt>Fecha límite</dt>
+                            <dd>
+                              {activity.dueAt
+                                ? new Date(activity.dueAt).toLocaleString("es")
+                                : "Sin fecha"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Última entrega</dt>
+                            <dd>
+                              {submission
+                                ? new Date(
+                                    submission.submittedAt,
+                                  ).toLocaleString("es")
+                                : "—"}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>Calificación</dt>
+                            <dd>
+                              {submission?.score != null
+                                ? `${submission.score}/${activity.maxScore}`
+                                : `—/${activity.maxScore}`}
+                            </dd>
+                          </div>
+                        </dl>
+                        <Link href={`/aulas/${id}/tareas/${activity.id}`}>
+                          {submission?.status === "DRAFT" ||
+                          submission?.status === "REOPENED"
+                            ? "Continuar entrega"
+                            : "Abrir tarea"}
+                        </Link>
+                      </article>
+                    );
+                  })}
+                </div>
+              </details>
+            ))}
+          </div>
+        </details>
       ))}
     </section>
   );

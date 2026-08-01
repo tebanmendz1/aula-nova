@@ -479,6 +479,48 @@
   margin: 3px 0 0;
   font-size: 20px;
 }
+.student-unit > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  list-style: none;
+}
+.student-unit > summary::-webkit-details-marker {
+  display: none;
+}
+.student-unit > summary span {
+  display: grid;
+  gap: 3px;
+}
+.student-unit > summary small {
+  color: #6c5ce7;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.student-unit > summary b {
+  font-size: 20px;
+}
+.student-unit > summary i {
+  color: #777181;
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+}
+.student-unit > summary::after {
+  content: "+";
+  color: #6755e7;
+  font-size: 24px;
+  font-weight: 700;
+}
+.student-unit[open] > summary::after {
+  content: "−";
+}
+.student-unit > .unit-themes {
+  margin-top: 15px;
+}
 .activity-theme {
   border: 1px solid #e9e5f5;
   border-radius: 12px;
